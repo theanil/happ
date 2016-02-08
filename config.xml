@@ -133,6 +133,8 @@
 	<allow-navigation href="http://*/*" />
 	<allow-intent href="*" />
 	
+	<platform name="ios|winphone|wp8|android" />
+	
     <platform name="android">
         <allow-intent href="market:*" />
     </platform>
