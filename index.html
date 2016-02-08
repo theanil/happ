@@ -1,100 +1,3547 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-	<head>
-		<title>nativeDroid II - jQueryMobile Template</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<head>
+<title>App</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
+<script type="text/javascript" charset="utf-8" src="PushNotification.js"></script>
 
-		<link rel="stylesheet" href="font-awesome.min.css" />
-		<link rel="stylesheet" href="jquery.mobile.min.css" />
-		<link rel="stylesheet" href="vendor/waves/waves.min.css" />
-		<link rel="stylesheet" href="css/nativedroid2.css" />
-		<link rel="stylesheet" href="css/nativedroid2.color.blue.css" />
+<meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' http://www.tendersinfo.com 'unsafe-inline' 'unsafe-eval'; object-src 'self' http://www.tendersinfo.com; "/>
 		
-		<meta name="mobile-web-app-capable" content="yes">
-	 	<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<script type="text/javascript" charset="utf-8" src="js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/jquery.mobile-1.4.5.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/jquery.form-validator.min.js"></script>
 
-	</head>
-	<body>
+<script type="text/javascript" charset="utf-8" src="js/services.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/tenders.js"></script>
 
-		<div data-role="page">
+<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+<link rel="stylesheet" href="css/jqm-demos.css" />
+<link rel="stylesheet" href="css/styles.css" />
 
-			<nd2-include data-src="panel.left.html"></nd2-include>
+<script type="text/javascript" charset="utf-8">
+ 
+ document.addEventListener("deviceready", onDeviceReady, true);
+ //alert('ok');
+ //$.mobile.fixedToolbars.show(true);
+ 
+ function onDeviceReady() 
+ {
+	 var pushNotification;
+ 
+	  console.log("Entering index.html.onDeviceReady");
+	  //var element = document.getElementById('deviceProperties');
+	  var html = "";
+	  //html = html + "<li>" + 'Device Name: ' + device.name + "</li>";
+	  ////html = html + "<li>" + 'Device Cordova: ' + device.cordova + "</li>";
+	  ////html = html + "<li>" + 'Device phonegap: ' + device.phonegap + "</li>";
+	  //html = html + "<li>" + 'Device Platform: ' + device.platform + "</li>";
+	  //html = html + "<li>" + 'Device Version: ' + device.version + "</li>";
+	  html = html + "<li>" + 'Device ID: ' + device.uuid + "</li>";
+	  console.log(html);
 
-			<div data-role="panel" id="bottomsheet" data-animate="false" data-position='bottom' data-display="overlay">
-				<nd2-include data-src="bottom.sheet.html"></nd2-include>
-			</div>
+	//$("#app-status-ul").append('<li>deviceready event received</li>').listview("refresh");
+	//$("#app-status-ul2").append('<li>deviceready event received</li>').listview("refresh");
 
-			<div data-role="header" data-position="fixed" class="wow fadeInDown" data-wow-delay="0.2s">
-				<a href="#leftpanel" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="zmdi zmdi-menu"></i></a>
-				<h1 class="wow fadeIn" data-wow-delay='0.4s'>H App</h1>
+		document.addEventListener("backbutton", function(e)
+		{
+			page = $.mobile.activePage[0].id;
+			//$("#app-status-ul").append('<li>backbutton event received</li>').listview("refresh");;
+			//$("#app-status-ul2").append('<li>backbutton event received</li>').listview("refresh");
+			//$("#app-status-ul2").append('<li>Page: ' + page + '</li>').listview("refresh");
+			//alert($.mobile.activePage.attr("id"));
+			//if( $("#main").length > 0)
+			if( page == 'beforelogin' || page == 'main')
+			{
+				// call this to get a new token each time. don't call it to reuse existing token.
+				pushNotification.unregister(successHandler, errorHandler);
+				e.preventDefault();
+				navigator.app.exitApp();
+				//navigator.app.backHistory();
+			}
+			else
+			{
+				navigator.app.backHistory();
+			}
+		}, false);				
 
-			</div>
+	try 
+	{ 
+		pushNotification = window.plugins.pushNotification;
+		//$("#app-status-ul").append('<li>registering ' + device.platform + '</li>').listview("refresh");
+		//$("#app-status-ul2").append('<li>registering ' + device.platform + '</li>').listview("refresh");
+		
+		if (device.platform == 'android' || device.platform == 'Android' || device.platform == 'amazon-fireos' ) 
+		{
+			pushNotification.register(successHandler, errorHandler, {"senderID":"802746433745","ecb":"onNotification"});		// required!
+		} else 
+		{
+			pushNotification.register(tokenHandler, errorHandler, {"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});	// required!
+		}
+	}
+	catch(err) 
+	{ 
+		txt="There was an error on this page.\n\n"; 
+		txt+="Error description: " + err.message + "\n\n"; 
+		alert(txt); 
+	} 
+				
+	  localStorage.setItem("device_platform", device.platform);
+	  localStorage.setItem("device_uuid", device.uuid);
+	  localStorage.setItem("device_browser", navigator.userAgent);
+	  
+	  var html = "";
+	  $("#deviceProperties").html(html);
+	  $("#deviceProperties").listview('refresh');
+	  
+	  console.log("Exiting index.html.onDeviceReady");	
+	  		 //alert(localStorage.session_id_local);
+	 //ShowHome();
+ }	
 
-			<div role="main" class="ui-content" data-inset="false">
+ // handle APNS notifications for iOS
+function onNotificationAPN(e) {
+	if (e.alert) {
+		 $("#app-status-ul").append('<li>push-notification: ' + e.alert + '</li>');
+		 // showing an alert also requires the org.apache.cordova.dialogs plugin
+		 navigator.notification.alert(e.alert);
+	}
+		
+	if (e.sound) {
+		// playing a sound also requires the org.apache.cordova.media plugin
+		var snd = new Media(e.sound);
+		snd.play();
+	}
+	
+	if (e.badge) {
+		pushNotification.setApplicationIconBadgeNumber(successHandler, e.badge);
+	}
+}
+
+// handle GCM notifications for Android
+function onNotification(e) 
+{
+	if(e.event != 'registered')
+	{
+		//$("#app-status-ul").append('<li>Recieved: ' + e.event + '</li>').listview("refresh");
+		//$("#app-status-ul2").append('<li>Recieved: ' + e.event + '</li>').listview("refresh");
+	}
+	
+	switch( e.event )
+	{
+		case 'registered':
+		if ( e.regid.length > 0 )
+		{
+			//$("#app-status-ul").append("<li>Registered to Tendersinfo Server</li>").listview("refresh");
+			//$("#app-status-ul2").append("<li>Registered to Server</li>").listview("refresh");
+			//$("#app-status-ul2").append('<li>REGISTERED -> REGID: ' + e.regid + "</li>").listview("refresh");
+			
+			//$("#app-status-ul").append('<li>REGISTERED -> REGID: ' + e.regid + "</li>");
+			// Your GCM push server needs to know the regID before it can push to this device
+			// here is where you might want to send it the regID for later use.
+			
+			sendID(e.regid);
+			console.log("regID = " + e.regid);
+		}
+		break;
+		
+		case 'message':
+			// if this flag is set, this notification happened while we were in the foreground.
+			// you might want to play a sound to get the user's attention, throw up a dialog, etc.
+			if (e.foreground)
+			{
+				//$("#app-status-ul").append('<li>--INLINE NOTIFICATION--' + '</li>').listview("refresh");
+				//$("#app-status-ul2").append('<li>--INLINE NOTIFICATION--' + '</li>').listview("refresh");
+				  
+				// on Android soundname is outside the payload. 
+				// On Amazon FireOS all custom attributes are contained within payload
+				var soundfile = e.soundname || e.payload.sound;
+				// if the notification contains a soundname, play it.
+				// playing a sound also requires the org.apache.cordova.media plugin
+				var my_media = new Media("/android_asset/www/"+ soundfile);
+
+				my_media.play();
+			}
+			else
+			{	// otherwise we were launched because the user touched a notification in the notification tray.
+				if (e.coldstart)
+				{
+					//$("#app-status-ul").append('<li>--COLDSTART NOTIFICATION--' + '</li>').listview("refresh");
+					//$("#app-status-ul2").append('<li>--COLDSTART NOTIFICATION--' + '</li>').listview("refresh");
+				}
+				else
+				{
+					//$("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>').listview("refresh");
+					//$("#app-status-ul2").append('<li>--BACKGROUND NOTIFICATION--' + '</li>').listview("refresh");
+				}
+			}
+				
+			
+			//$("#app-status-ul2").append('<li>' + e.payload.nolink + '</li>').listview("refresh");
+			if(e.payload.image != undefined)
+			{
+				//$("#app-status-ul2").append('<li><img src="' + e.payload.image + '"></li>').listview("refresh");
+			}else
+			{
+				//$("#app-status-ul2").append('<li>' + e.payload.message + '</li>').listview("refresh");
+			}
+			
+			//$("#app-status-ul").append('<li>Message: ' + e.payload.message + '</li>').listview("refresh");
+			//$("#app-status-ul").append('<li>' + e.payload.message + '</li>').listview("refresh");
+			
+			//showMessage(e.payload.message,null,'Tendersinfo','OK');
+			
+			//$("#app-status-ul").append("<li><a href=\"#\" onclick=\"ShowDetail(" + e.payload.ref_id + ");return false;\"><p class=\"wrap\">" + e.payload.message + "</p></a></li>").listview("refresh");
+			
+			$("#app-status-ul").append("<li><p class=\"wrap\">" + e.payload.message + "</p></li>").listview("refresh");
+			
+			//android only
+			//$("#app-status-ul").append('<li>MESSAGE -> MSGCNT: ' + e.payload.msgcnt + '</li>').listview("refresh");
+			//amazon-fireos only
+			//$("#app-status-ul").append('<li>Message Timestamp: ' + e.payload.timeStamp + '</li>').listview("refresh");
+		break;
+		
+		case 'error':
+			$("#app-status-ul").append('<li>ERROR -> MSG:' + e.msg + '</li>').listview("refresh");
+			//$("#app-status-ul2").append('<li>ERROR -> MSG:' + e.msg + '</li>').listview("refresh");
+		break;
+		
+		default:
+			$("#app-status-ul").append('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>').listview("refresh");
+			//$("#app-status-ul2").append('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>').listview("refresh");
+		break;
+	}
+}
+
+function tokenHandler (result) {
+	$("#app-status-ul").append('<li>token: '+ result +'</li>').listview("refresh");
+	//$("#app-status-ul2").append('<li>token: '+ result +'</li>').listview("refresh");
+	// Your iOS push server needs to know the token before it can push to this device
+	// here is where you might want to send it the token for later use.
+}
+
+function successHandler (result) {
+	//$("#app-status-ul").append('<li>success: '+ result +'</li>').listview("refresh");
+	//$("#app-status-ul2").append('<li>success: '+ result +'</li>').listview("refresh");
+}
+
+function errorHandler (error) {
+	$("#app-status-ul").append('<li>error: '+ error +'</li>').listview("refresh");
+	//$("#app-status-ul2").append('<li>error: '+ error +'</li>').listview("refresh");
+}
+</script>
+
+	<script>
+		$(function() {
+			//$( "[data-role='navbar']" ).navbar();
+			//$( "[data-role='header'], [data-role='footer']" ).toolbar();
+		});
+		// Update the contents of the toolbars
+		$( document ).on( "pagecontainerchange", function() 
+		{
+			// Each of the four pages in this demo has a data-title attribute
+			// which value is equal to the text of the nav button
+			// For example, on first page: <div data-role="page" data-title="Info">
+			//var current = $( ".ui-page-active" ).jqmData( "title" );
+			// Change the heading
+			//$( "[data-role='header'] h1" ).text( current );
+			// Remove active class from nav buttons
+			//$( "[data-role='navbar'] a.ui-btn-active" ).removeClass( "ui-btn-active" );
+			// Add active class to current nav button
+			//$( "[data-role='navbar'] a" ).each(function() 
+			//{
+				//if ( $( this ).text() === current ) {
+					//$( this ).addClass( "ui-btn-active" );
+				//}
+			//});
+		});
+
+	</script>	
+	
+	<script>
+	$(document).on('pagebeforeshow', '#home', function()
+	{
+		//alert('in home');
+		
+		ShowHome();
+	});
+	</script>
+
+	<script>
+	$(document).on('pageinit', '#freetrial', function()
+	{
+		$(".ui-checkbox a").on("click tap", function(e) 
+		{
+			if(e.handled !== true) // This will prevent event triggering more then once
+			{
+				//alert('p');
+				$(':mobile-pagecontainer').pagecontainer('change', this.href);
+				
+				e.handled = true;
+				return false;
+			}
+		});
+	});
+	</script>	
+	
+	<script>
+	$(document).on('pageinit', '#subscribe', function()
+	{
+		$(".ui-checkbox a").on("click tap", function(e) 
+		{
+			if(e.handled !== true) // This will prevent event triggering more then once
+			{
+				//alert('p');
+				$(':mobile-pagecontainer').pagecontainer('change', this.href);
+				
+				e.handled = true;
+				return false;
+			}
+		});
+	});
+	</script>		
+	
+	<script>
+	$(document).on('pageinit', '#main', function()
+	{
+		dt = localStorage.session_validity;
+
+		var d = new Date();
+		
+		var dd = dt.substring(8, 10);
+		var mm = dt.substring(5, 7);
+		var yy = dt.substring(0, 4);
+		
+		//alert(dd + mm + yy);
+		var d2 = new Date(yy,Number(mm)-1,Number(dd));
+		//alert(Number(d));
+		//alert(Number(d2));
+		
+		d.setHours(0);
+		d.setMinutes(0, 0, 0);
+		d2.setHours(0);
+		d2.setMinutes(0, 0, 0);
+		var datediff = Math.abs(d.getTime() - d2.getTime()); // difference 
+		var diff2= parseInt(datediff / (24 * 60 * 60 * 1000), 10); 
+		//alert(d.getTime());
+		//alert(diff2);
+		//if(d2 <d)
+		if(diff2 < 0)
+		{
+			alert("Validity is expired, Logging out of system");
+			LogOut();
+		}
+
+		var dt2 = dd + "-" + mm + "-" +yy;
+		
+		//alert(dd + " * " + mm + " * " + yy);
+		//alert(localStorage.session_id_local);
+		//alert(localStorage.device_uuid);
+		//alert(localStorage.session_validity);
+		$("#welcome_message").html('');
+		$("#welcome_message").append("<li>" + 'Welcome ' + localStorage.session_name + "</li>").listview("refresh");
+		//$("#welcome_message").append("<li>" + 'Validity: ' + dt2 + "</li>").listview("refresh");
+		$("#welcome_message").append("<li>" + 'Balance: Rs ' + localStorage.session_id_balance + "</li>").listview("refresh");
+		if(diff2>0 && diff2<=30)
+		{
+			username = localStorage.session_id_username;
+			//alert('<li><a href="#" onclick="Renew(' + "'" + username + "'" + ');return false;">' + "Renew Subscription" +'</a> </li>');
+			$("#welcome_message").append('<li><a href="#" onclick="Renew(' + "'" + username + "'" + ');return false;">' + "Renew Subscription" +'</a> </li>').listview("refresh");
+		}	
+		
+	});
+	</script>	
+	
+	<script>
+	
+   $.mobile.document
+    // "filter-menu-menu" is the ID generated for the listview when it is created
+    // by the custom selectmenu plugin. Upon creation of the listview widget we
+    // want to prepend an input field to the list to be used for a filter.
+    .on( "listviewcreate", "#f_regcountry-menu", function( e ) {
+        var input,
+            listbox = $( "#f_regcountry-listbox" ),
+            form = listbox.jqmData( "filter-form" ),
+            listview = $( e.target );
+        // We store the generated form in a variable attached to the popup so we
+        // avoid creating a second form/input field when the listview is
+        // destroyed/rebuilt during a refresh.
+        if ( !form ) {
+            input = $( "<input data-type='search'></input>" );
+            form = $( "<form></form>" ).append( input );
+            input.textinput();
+            $( "#f_regcountry-listbox" )
+            .prepend( form )
+            .jqmData( "filter-form", form );
+        }
+        // Instantiate a filterable widget on the newly created listview and
+        // indicate that the generated input is to be used for the filtering.
+        listview.filterable({ input: input });
+    })
+    // The custom select list may show up as either a popup or a dialog,
+    // depending how much vertical room there is on the screen. If it shows up
+    // as a dialog, then the form containing the filter input field must be
+    // transferred to the dialog so that the user can continue to use it for
+    // filtering list items.
+    //
+    // After the dialog is closed, the form containing the filter input is
+    // transferred back into the popup.
+    .on( "pagebeforeshow pagehide", "#f_regcountry-dialog", function( e ) {
+        var form = $( "#f_regcountry-listbox" ).jqmData( "filter-form" ),
+            placeInDialog = ( e.type === "pagebeforeshow" ),
+            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#f_regcountry-listbox" );
+        form
+        .find( "input" )
+        // Turn off the "inset" option when the filter input is inside a dialog
+        // and turn it back on when it is placed back inside the popup, because
+        // it looks better that way.
+        .textinput( "option", "inset", !placeInDialog )
+        .end()
+        .prependTo( destination );
+    });
+	
+   $.mobile.document
+    // "filter-menu-menu" is the ID generated for the listview when it is created
+    // by the custom selectmenu plugin. Upon creation of the listview widget we
+    // want to prepend an input field to the list to be used for a filter.
+    .on( "listviewcreate", "#s_regcountry-menu", function( e ) {
+        var input,
+            listbox = $( "#s_regcountry-listbox" ),
+            form = listbox.jqmData( "s_regcountry-form" ),
+            listview = $( e.target );
+        // We store the generated form in a variable attached to the popup so we
+        // avoid creating a second form/input field when the listview is
+        // destroyed/rebuilt during a refresh.
+        if ( !form ) {
+            input = $( "<input data-type='search'></input>" );
+            form = $( "<form></form>" ).append( input );
+            input.textinput();
+            $( "#s_regcountry-listbox" )
+            .prepend( form )
+            .jqmData( "s_regcountry-form", form );
+        }
+        // Instantiate a filterable widget on the newly created listview and
+        // indicate that the generated input is to be used for the filtering.
+        listview.filterable({ input: input });
+    })
+    // The custom select list may show up as either a popup or a dialog,
+    // depending how much vertical room there is on the screen. If it shows up
+    // as a dialog, then the form containing the filter input field must be
+    // transferred to the dialog so that the user can continue to use it for
+    // filtering list items.
+    //
+    // After the dialog is closed, the form containing the filter input is
+    // transferred back into the popup.
+    .on( "pagebeforeshow pagehide", "#s_regcountry-dialog", function( e ) {
+        var form = $( "#s_regcountry-listbox" ).jqmData( "s_regcountry-form" ),
+            placeInDialog = ( e.type === "pagebeforeshow" ),
+            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#s_regcountry-listbox" );
+        form
+        .find( "input" )
+        // Turn off the "inset" option when the filter input is inside a dialog
+        // and turn it back on when it is placed back inside the popup, because
+        // it looks better that way.
+        .textinput( "option", "inset", !placeInDialog )
+        .end()
+        .prependTo( destination );
+    });	
+	
+   $.mobile.document
+    // "filter-menu-menu" is the ID generated for the listview when it is created
+    // by the custom selectmenu plugin. Upon creation of the listview widget we
+    // want to prepend an input field to the list to be used for a filter.
+    .on( "listviewcreate", "#pr_regcountry-menu", function( e ) {
+        var input,
+            listbox = $( "#pr_regcountry-listbox" ),
+            form = listbox.jqmData( "pr_regcountry-form" ),
+            listview = $( e.target );
+        // We store the generated form in a variable attached to the popup so we
+        // avoid creating a second form/input field when the listview is
+        // destroyed/rebuilt during a refresh.
+        if ( !form ) {
+            input = $( "<input data-type='search'></input>" );
+            form = $( "<form></form>" ).append( input );
+            input.textinput();
+            $( "#pr_regcountry-listbox" )
+            .prepend( form )
+            .jqmData( "pr_regcountry-form", form );
+        }
+        // Instantiate a filterable widget on the newly created listview and
+        // indicate that the generated input is to be used for the filtering.
+        listview.filterable({ input: input });
+    })
+    // The custom select list may show up as either a popup or a dialog,
+    // depending how much vertical room there is on the screen. If it shows up
+    // as a dialog, then the form containing the filter input field must be
+    // transferred to the dialog so that the user can continue to use it for
+    // filtering list items.
+    //
+    // After the dialog is closed, the form containing the filter input is
+    // transferred back into the popup.
+    .on( "pagebeforeshow pagehide", "#pr_regcountry-dialog", function( e ) {
+        var form = $( "#pr_regcountry-listbox" ).jqmData( "pr_regcountry-form" ),
+            placeInDialog = ( e.type === "pagebeforeshow" ),
+            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#pr_regcountry-listbox" );
+        form
+        .find( "input" )
+        // Turn off the "inset" option when the filter input is inside a dialog
+        // and turn it back on when it is placed back inside the popup, because
+        // it looks better that way.
+        .textinput( "option", "inset", !placeInDialog )
+        .end()
+        .prependTo( destination );
+    });	
+	
+   $.mobile.document
+    // "filter-menu-menu" is the ID generated for the listview when it is created
+    // by the custom selectmenu plugin. Upon creation of the listview widget we
+    // want to prepend an input field to the list to be used for a filter.
+    .on( "listviewcreate", "#sector-menu", function( e ) {
+        var input,
+            listbox = $( "#sector-listbox" ),
+            form = listbox.jqmData( "sector-form" ),
+            listview = $( e.target );
+        // We store the generated form in a variable attached to the popup so we
+        // avoid creating a second form/input field when the listview is
+        // destroyed/rebuilt during a refresh.
+        if ( !form ) {
+            input = $( "<input data-type='search'></input>" );
+            form = $( "<form></form>" ).append( input );
+            input.textinput();
+            $( "#sector-listbox" )
+            .prepend( form )
+            .jqmData( "sector-form", form );
+        }
+        // Instantiate a filterable widget on the newly created listview and
+        // indicate that the generated input is to be used for the filtering.
+        listview.filterable({ input: input });
+    })
+    // The custom select list may show up as either a popup or a dialog,
+    // depending how much vertical room there is on the screen. If it shows up
+    // as a dialog, then the form containing the filter input field must be
+    // transferred to the dialog so that the user can continue to use it for
+    // filtering list items.
+    //
+    // After the dialog is closed, the form containing the filter input is
+    // transferred back into the popup.
+    .on( "pagebeforeshow pagehide", "#sector-dialog", function( e ) {
+        var form = $( "#sector-listbox" ).jqmData( "sector-form" ),
+            placeInDialog = ( e.type === "pagebeforeshow" ),
+            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#sector-listbox" );
+        form
+        .find( "input" )
+        // Turn off the "inset" option when the filter input is inside a dialog
+        // and turn it back on when it is placed back inside the popup, because
+        // it looks better that way.
+        .textinput( "option", "inset", !placeInDialog )
+        .end()
+        .prependTo( destination );
+    });	
+
+   $.mobile.document
+    // "filter-menu-menu" is the ID generated for the listview when it is created
+    // by the custom selectmenu plugin. Upon creation of the listview widget we
+    // want to prepend an input field to the list to be used for a filter.
+    .on( "listviewcreate", "#region-menu", function( e ) {
+        var input,
+            listbox = $( "#region-listbox" ),
+            form = listbox.jqmData( "region-form" ),
+            listview = $( e.target );
+        // We store the generated form in a variable attached to the popup so we
+        // avoid creating a second form/input field when the listview is
+        // destroyed/rebuilt during a refresh.
+        if ( !form ) {
+            input = $( "<input data-type='search'></input>" );
+            form = $( "<form></form>" ).append( input );
+            input.textinput();
+            $( "#region-listbox" )
+            .prepend( form )
+            .jqmData( "region-form", form );
+        }
+        // Instantiate a filterable widget on the newly created listview and
+        // indicate that the generated input is to be used for the filtering.
+        listview.filterable({ input: input });
+    })
+    // The custom select list may show up as either a popup or a dialog,
+    // depending how much vertical room there is on the screen. If it shows up
+    // as a dialog, then the form containing the filter input field must be
+    // transferred to the dialog so that the user can continue to use it for
+    // filtering list items.
+    //
+    // After the dialog is closed, the form containing the filter input is
+    // transferred back into the popup.
+    .on( "pagebeforeshow pagehide", "#region-dialog", function( e ) {
+        var form = $( "#region-listbox" ).jqmData( "region-form" ),
+            placeInDialog = ( e.type === "pagebeforeshow" ),
+            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#region-listbox" );
+        form
+        .find( "input" )
+        // Turn off the "inset" option when the filter input is inside a dialog
+        // and turn it back on when it is placed back inside the popup, because
+        // it looks better that way.
+        .textinput( "option", "inset", !placeInDialog )
+        .end()
+        .prependTo( destination );
+    });		
+	
+	</script>
+</head>
+
+<body>
+
+ <div data-role="page" id="home" data-title="APP">
+  <div data-theme="b" data-role="header">
+  <h3>Tendersinfo</h3>
+  </div>
+  <div data-role="content">
+  </div>  
+ </div>
+  
+ <div data-role="page" id="beforelogin1" data-title="APP">
+  <div data-theme="b" data-role="header">
+   <h3>Tendersinfo</h3>
+  </div>
+  <div data-role="content">
+   
+		<!--<center><img src="tenderlogo.png"></center>-->
+		<div data-role="collapsibleset" data-theme="a" data-content-theme="a" data-mini="false">
+		<div data-role="collapsible">
+		<h3>Tenders</h3>
+			<ul data-role="listview">
+				  <li><a href="#" onclick="GetAggData('tenders','bysector'); return false;">Tenders by sector</a></li>
+				  <li><a href="#" onclick="GetAggData('tenders','byregion'); return false;">Tenders by Region</a></li>
+				  <li><a href="#" onclick="GetAggData('tenders','bycountry'); return false;">Tenders by Country</a></li>
+				  <!--
+				  <li><a href="#" onclick="GetAggData('tenders','byproduct'); return false;">Tenders by Product</a></li>
+				  -->
+				</ul>
+		</div>
+		<div data-role="collapsible">
+		<h3>Projects</h3>
+			<ul data-role="listview">
+				  <li><a href="#" onclick="GetAggData('projects','bysector'); return false;">Projects by sector</a></li>
+				  <li><a href="#" onclick="GetAggData('projects','byregion'); return false;">Projects by Region</a></li>
+				  <li><a href="#" onclick="GetAggData('projects','bycountry'); return false;">Projects by Country</a></li>
+				</ul>
+		</div>
+		<div data-role="collapsible">
+		<h3>Contract Awards</h3>
+			<ul data-role="listview">
+				  <li><a href="#" onclick="GetAggData('contracts','bysector'); return false;">Contract Awards by sector</a></li>
+				  <li><a href="#" onclick="GetAggData('contracts','byregion'); return false;">Contract Awards by Region</a></li>
+				  <li><a href="#" onclick="GetAggData('contracts','bycountry'); return false;">Contract Awards by Country</a></li>
+				</ul>	
+		</div>
+		<div data-role="collapsible">
+		<h3>Business News</h3>
+			<ul data-role="listview">
+				  <li><a href="#" onclick="GetAggData('news','bysector'); return false;">Procurement News by sector</a></li>
+				  <li><a href="#" onclick="GetAggData('news','byregion'); return false;">Procurement News by Region</a></li>
+				  <li><a href="#" onclick="GetAggData('news','bycountry'); return false;">Procurement News by Country</a></li>
+				</ul>
+		</div>		
+		</div>
+		
+	   <!--Device Properties-->
+	   <ul data-role="listview" data-inset="true" id="deviceProperties"></ul>		
+	   <ul data-role="listview" data-inset="true" id="app-status-ul2"></ul>
+  </div>
+
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Search</a></li>
+				<li><a href="#" OnClick="Login(); return false;" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
+				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Free Trial</a></li>
+				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all"">Subscribe</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+  
+ </div>
+ 
+ <div data-role="page" id="thanks" data-title="APP">
+  <div data-theme="b" data-role="header">
+   <h1>App</h1>
+   <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+  </div>
+  <div data-role="content">
+   <center><h1>Thanks</h1></center>
+	<ul data-role="listview" data-inset="true" id="thanks_list"></ul>		
+
+  </div>
+
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Search</a></li>
+				<li><a href="#" OnClick="Login(); return false;" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
+				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Free Trial</a></li>
+				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all"">Subscribe</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+  
+ </div>
+ 
+  <div data-role="page" id="thanks_afterlogin" data-title="Thanks">
+  <div data-role="header" data-theme="b">
+   <h3>Thanks</h3>
+	<a href="#nav-panel-m1" data-icon="bars" data-iconpos="notext">Menu</a>
+	<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>	   
+  </div>
+  <div data-role="content">
+   
+	<ul data-role="listview" data-inset="true" id="thanks_list_afterlogin"></ul>		
+
+  </div>
+
+  	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-m1">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
 			<!--
-				<a href="tabs.html" >Tabs</a> <br><br>
-				<a href="toasts.html" >Toasts</a><br><br>
-				<a href="cards.html" >Cards</a><br><br>
-				<a href="header_footer.html" >Header & Footer</a><br><br>
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
 			-->
-			<br>Welcome Rajesh <br><br>
-			Balance: Rs 100<br><br>
-				<div class="row">
+		</ul>
 
-					<div class="col-xs-4">
-						<div class="box">
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- ui-icon-arrow-u ui-btn-icon-top -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+  
+ </div>
+ 
+ <div data-role="page" class="jqm-demos" id="main" data-title="APP">
 
-							<!-- Media Overlay no Background !-->
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+        <a href="#nav-panel-m2" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
+		
+    </div><!-- /header -->
 
-							<div class="nd2-card">
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
 
-								<div class="card-media">
-									<a href="book.html"><img src="img/booknow.png"></a>
-								</div>
+    	<!--<h4>Welcome</h4>-->
+		
+		<!--<img src="tenderlogo.png">-->
+		<ul data-role="listview" data-inset="true" id="welcome_message"></ul>		
+		
+		<div data-role="listview">
 
-							</div>
-						</div>
-					</div>
+			<ul data-role="listview">
+				  <li><a href="#" onclick="ListServices(); return false;">Book Services</a></li>
+				  <li><a href="#" onclick="ListTicket(0); return false;">My Ticket</a></li>
+				  <li><a href="#" onclick="Recharge(); return false;">Recharge</a></li>
+				  <!--
+				  <li><a href="#" onclick="GetAggData('tenders','byproduct'); return false;">Tenders by Product</a></li>
+				  -->
+				</ul>
+		</div>
+	
+		
+		<ul data-role="listview" data-inset="true" id="app-status-ul"></ul>
+		
+	</div><!-- /content -->
 
-					<div class="col-xs-4">
-						<div class="box">
 
-							<!-- Media Overlay no Background !-->
 
-							<div class="nd2-card">
-								<div class="card-media">
-									<a href="showticket.html"><img src="img/ticket.png"></a>
-								</div>
-							</div>
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-m2">
 
-						</div>
-					</div>
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#contact">Contact</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
 
-					<div class="col-xs-4">
-						<div class="box">
+	</div><!-- /panel -->
+		
+ </div>
+ 
+ <div data-role="page" class="jqm-demos" id="profile" data-title="Profile">
 
-							<!-- Media Overlay no Background !-->
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>profile</h1>
+        <a href="#nav-panel-pr" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
+    </div><!-- /header -->
 
-							<div class="nd2-card">
-								<div class="card-media">
-									<a href="checkbal.html"><img src="img/showbal.png"></a>
-								</div>
-							</div>
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
 
-						</div>
-					</div>
-					
-				</div>
+    	<h1>Update Profile</h1>
+
+		<form id="profile_form" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="pro_name">Name: <span class="star">*</span></label>
+				<input type="text" name="regname" id="pr_regname" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="regemail">Email: <span class="star">*</span></label>
+				<input type="email" name="regemail" id="pr_regemail" class="required email" minlength="2">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="org">Organisation: <span class="star">*</span></label>
+				<input type="text" name="org" id="pr_org" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="add1">Address: <span class="star">*</span></label>
+				<input type="text" name="add1" id="pr_add1" class="" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="add2"></label>
+				<input type="text" name="add2" id="pr_add2" class="" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="city">City: <span class="star">*</span></label>
+				<input type="text" name="city" id="pr_city" class="required" minlength="4">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="pincode">PIN/ZIP Code:</label>
+				<input type="text" name="pincode" id="pr_pincode" class="" minlength="4">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="pr_regcountry">Country: <span class="star">*</span></label>
+				<select id="pr_regcountry" name="pr_regcountry" data-native-menu="false" class="required">
+					<option value="">Select Country</option>
+					<option value="AF">Afghanistan</option>
+					<option value="AL">Albania</option>
+					<option value="DZ">Algeria</option>
+					<option value="AS">American samoa</option>
+					<option value="AD">Andorra</option>
+					<option value="AO">Angola</option>
+					<option value="AI">Anguilla</option>
+					<option value="AQ">Antarctica</option>
+					<option value="AG">Antigua and barbuda</option>
+					<option value="AR">Argentina</option>
+					<option value="AM">Armenia</option>
+					<option value="AW">Aruba</option>
+					<option value="AU">Australia</option>
+					<option value="AT">Austria</option>
+					<option value="AZ">Azerbaijan</option>
+					<option value="BS">Bahamas</option>
+					<option value="BH">Bahrain</option>
+					<option value="BD">Bangladesh</option>
+					<option value="BB">Barbados</option>
+					<option value="BY">Belarus</option>
+					<option value="BE">Belgium</option>
+					<option value="BZ">Belize</option>
+					<option value="BJ">Benin</option>
+					<option value="BM">Bermuda</option>
+					<option value="BT">Bhutan</option>
+					<option value="BO">Bolivia</option>
+					<option value="BA">Bosnia and herzegovina</option>
+					<option value="BW">Botswana</option>
+					<option value="BV">Bouvet island</option>
+					<option value="BR">Brazil</option>
+					<option value="IO">British indian ocean territory</option>
+					<option value="BN">Brunei darussalam</option>
+					<option value="BG">Bulgaria</option>
+					<option value="BF">Burkina faso</option>
+					<option value="BI">Burundi</option>
+					<option value="KH">Cambodia</option>
+					<option value="CM">Cameroon</option>
+					<option value="CA">Canada</option>
+					<option value="CV">Cape verde</option>
+					<option value="KY">Cayman islands</option>
+					<option value="CF">Central african republic</option>
+					<option value="TD">Chad</option>
+					<option value="CL">Chile</option>
+					<option value="CN">China</option>
+					<option value="CX">Christmas island</option>
+					<option value="CC">Cocos (keeling) islands</option>
+					<option value="CO">Colombia</option>
+					<option value="KM">Comoros</option>
+					<option value="CG">Congo</option>
+					<option value="CD">Congo, the democratic republic of the</option>
+					<option value="CK">Cook islands</option>
+					<option value="CR">Costa rica</option>
+					<option value="CI">Cote divoire</option>
+					<option value="HR">Croatia</option>
+					<option value="CU">Cuba</option>
+					<option value="CY">Cyprus</option>
+					<option value="CZ">Czech republic</option>
+					<option value="DK">Denmark</option>
+					<option value="DJ">Djibouti</option>
+					<option value="DM">Dominica</option>
+					<option value="DO">Dominican republic</option>
+					<option value="TP">East timor</option>
+					<option value="EC">Ecuador</option>
+					<option value="EG">Egypt</option>
+					<option value="SV">El salvador</option>
+					<option value="GQ">Equatorial guinea</option>
+					<option value="ER">Eritrea</option>
+					<option value="EE">Estonia</option>
+					<option value="ET">Ethiopia</option>
+					<option value="FK">Falkland islands (malvinas)</option>
+					<option value="FO">Faroe islands</option>
+					<option value="FJ">Fiji</option>
+					<option value="FI">Finland</option>
+					<option value="FR">France</option>
+					<option value="GF">French guiana</option>
+					<option value="PF">French polynesia</option>
+					<option value="TF">French southern territories</option>
+					<option value="GA">Gabon</option>
+					<option value="GM">Gambia</option>
+					<option value="GE">Georgia</option>
+					<option value="DE">Germany</option>
+					<option value="GH">Ghana</option>
+					<option value="GI">Gibraltar</option>
+					<option value="GR">Greece</option>
+					<option value="GL">Greenland</option>
+					<option value="GD">Grenada</option>
+					<option value="GP">Guadeloupe</option>
+					<option value="GU">Guam</option>
+					<option value="GT">Guatemala</option>
+					<option value="GN">Guinea</option>
+					<option value="GW">Guinea-bissau</option>
+					<option value="GY">Guyana</option>
+					<option value="HT">Haiti</option>
+					<option value="HM">Heard island and mcdonald islands</option>
+					<option value="VA">Vatican city</option>
+					<option value="HN">Honduras</option>
+					<option value="HK">Hong kong</option>
+					<option value="HU">Hungary</option>
+					<option value="IS">Iceland</option>
+					<option value="IN">India</option>
+					<option value="ID">Indonesia</option>
+					<option value="IR">Iran, islamic republic of</option>
+					<option value="IQ">Iraq</option>
+					<option value="IE">Ireland</option>
+					<option value="IM">Isle of man</option>
+					<option value="IL">Israel</option>
+					<option value="IT">Italy</option>
+					<option value="JM">Jamaica</option>
+					<option value="JP">Japan</option>
+					<option value="JO">Jordan</option>
+					<option value="KZ">Kazakstan</option>
+					<option value="KE">Kenya</option>
+					<option value="KI">Kiribati</option>
+					<option value="KP">Korea, democratic peoples republic of</option>
+					<option value="KR">Korea, republic of</option>
+					<option value="KV">Kosovo</option>
+					<option value="KW">Kuwait</option>
+					<option value="KG">Kyrgyzstan</option>
+					<option value="LA">Lao peoples democratic republic</option>
+					<option value="LV">Latvia</option>
+					<option value="LB">Lebanon</option>
+					<option value="LS">Lesotho</option>
+					<option value="LR">Liberia</option>
+					<option value="LY">Libyan arab jamahiriya</option>
+					<option value="LI">Liechtenstein</option>
+					<option value="LT">Lithuania</option>
+					<option value="LU">Luxembourg</option>
+					<option value="MO">Macau</option>
+					<option value="MK">Macedonia, the former yugoslav republic of</option>
+					<option value="MG">Madagascar</option>
+					<option value="MW">Malawi</option>
+					<option value="MY">Malaysia</option>
+					<option value="MV">Maldives</option>
+					<option value="ML">Mali</option>
+					<option value="MT">Malta</option>
+					<option value="MH">Marshall islands</option>
+					<option value="MQ">Martinique</option>
+					<option value="MR">Mauritania</option>
+					<option value="MU">Mauritius</option>
+					<option value="YT">Mayotte</option>
+					<option value="MX">Mexico</option>
+					<option value="FM">Micronesia, federated states of</option>
+					<option value="MD">Moldova, republic of</option>
+					<option value="MC">Monaco</option>
+					<option value="MN">Mongolia</option>
+					<option value="MJ">Montenegro</option>
+					<option value="MS">Montserrat</option>
+					<option value="MA">Morocco</option>
+					<option value="MZ">Mozambique</option>
+					<option value="MM">Myanmar</option>
+					<option value="NA">Namibia</option>
+					<option value="NR">Nauru</option>
+					<option value="NP">Nepal</option>
+					<option value="NL">Netherlands</option>
+					<option value="AN">Netherlands antilles</option>
+					<option value="NC">New caledonia</option>
+					<option value="NZ">New zealand</option>
+					<option value="NI">Nicaragua</option>
+					<option value="NE">Niger</option>
+					<option value="NG">Nigeria</option>
+					<option value="NU">Niue</option>
+					<option value="NF">Norfolk island</option>
+					<option value="MP">Northern mariana islands</option>
+					<option value="NO">Norway</option>
+					<option value="OM">Oman</option>
+					<option value="PK">Pakistan</option>
+					<option value="PW">Palau</option>
+					<option value="PS">Palestinian territory, occupied</option>
+					<option value="PA">Panama</option>
+					<option value="PG">Papua new guinea</option>
+					<option value="PY">Paraguay</option>
+					<option value="PE">Peru</option>
+					<option value="PH">Philippines</option>
+					<option value="PN">Pitcairn</option>
+					<option value="PL">Poland</option>
+					<option value="PT">Portugal</option>
+					<option value="PR">Puerto rico</option>
+					<option value="QA">Qatar</option>
+					<option value="RE">Reunion</option>
+					<option value="RO">Romania</option>
+					<option value="RU">Russian federation</option>
+					<option value="RW">Rwanda</option>
+					<option value="SH">Saint helena</option>
+					<option value="KN">Saint kitts and nevis</option>
+					<option value="LC">Saint lucia</option>
+					<option value="PM">Saint pierre and miquelon</option>
+					<option value="VC">Saint vincent and the grenadines</option>
+					<option value="WS">Samoa</option>
+					<option value="SM">San marino</option>
+					<option value="ST">Sao tome and principe</option>
+					<option value="SA">Saudi arabia</option>
+					<option value="RB">Serbia</option>
+					<option value="SN">Senegal</option>
+					<option value="SC">Seychelles</option>
+					<option value="SL">Sierra leone</option>
+					<option value="SG">Singapore</option>
+					<option value="SK">Slovakia</option>
+					<option value="SI">Slovenia</option>
+					<option value="SB">Solomon islands</option>
+					<option value="SO">Somalia</option>
+					<option value="ZA">South africa</option>
+					<option value="GS">South georgia and the south sandwich islands</option>
+					<option value="SS">South Sudan</option>
+					<option value="ES">Spain</option>
+					<option value="LK">Sri lanka</option>
+					<option value="SD">Sudan</option>
+					<option value="SR">Suriname</option>
+					<option value="SJ">Svalbard and jan mayen</option>
+					<option value="SZ">Swaziland</option>
+					<option value="SE">Sweden</option>
+					<option value="CH">Switzerland</option>
+					<option value="SY">Syrian arab republic</option>
+					<option value="TW">Taiwan, province of china</option>
+					<option value="TJ">Tajikistan</option>
+					<option value="TZ">Tanzania, united republic of</option>
+					<option value="TH">Thailand</option>
+					<option value="TG">Togo</option>
+					<option value="TK">Tokelau</option>
+					<option value="TO">Tonga</option>
+					<option value="TT">Trinidad and tobago</option>
+					<option value="TN">Tunisia</option>
+					<option value="TR">Turkey</option>
+					<option value="TM">Turkmenistan</option>
+					<option value="TC">Turks and caicos islands</option>
+					<option value="TV">Tuvalu</option>
+					<option value="UG">Uganda</option>
+					<option value="UA">Ukraine</option>
+					<option value="AE">United arab emirates</option>
+					<option value="GB">United kingdom</option>
+					<option value="US">United states</option>
+					<option value="UM">United states minor outlying islands</option>
+					<option value="UY">Uruguay</option>
+					<option value="UZ">Uzbekistan</option>
+					<option value="VU">Vanuatu</option>
+					<option value="VE">Venezuela</option>
+					<option value="VN">Viet nam</option>
+					<option value="VG">Virgin islands, british</option>
+					<option value="VI">Virgin islands, u.s.</option>
+					<option value="WF">Wallis and futuna</option>
+					<option value="EH">Western sahara</option>
+					<option value="YE">Yemen</option>
+					<option value="ZM">Zambia</option>
+					<option value="ZW">Zimbabwe</option>
+				</select>
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="tel">Telephone No.: <span class="star">*</span></label>
+				<input type="tel" name="tel" id="pr_tel" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="url">URL:</label>
+				<input type="url" name="url" id="pr_url">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="product">Product & Services:</label>
+				<input type="text" name="product" id="pr_product">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain" > 
+				<label for="operation">Geographical Preference:</label>
+				<input type="text" name="operation" id="pr_operation">
+			</fieldset>
+			
+			<input type="hidden" name="device_platform" id="pr_device_platform" value="">
+			<input type="hidden" name="det_session_id" id="pr_session_id" value="">
+			<input type="hidden" name="user_id" id="pr_user_id" value="">
+			<input type="hidden" name="device_id" id="pr_device_uuid" value="">
+			<input type="hidden" name="device_browser" id="pr_device_browser" value="">
+			
+			<input type="button" data-theme="b" name="submit" id="profile_signup" value="Submit">
+			
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			
+		</form>
+
+
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-pr">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- ui-icon-arrow-u ui-btn-icon-top -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+ 
+  <div data-role="page" class="jqm-demos" id="contact" data-title="Contact">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b" >
+        <h1>contact</h1>
+        <a href="#nav-panel-c1" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>				
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h1>Contact Us</h1>
+
+		<form id="coform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="contname">Name: <span class="star">*</span></label>
+				<input type="text" name="contname" id="contname" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="cont_email">E-mail ID: <span class="star">*</span></label>
+				<input type="text" name="cont_email" id="cont_email" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="cont_tel">Tel:</label>
+				<input type="text" name="cont_tel" id="cont_tel" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="cont_info">Information/Suggestion: <span class="star">*</span></label>
+				<textarea name="cont_info" id="cont_info" class="required" minlength="4"></textarea>
+			</fieldset>
+			
+			<input type="hidden" name="device_platform" id="c_device_platform" value="">
+			<input type="hidden" name="device_id" id="c_device_uuid" value="">
+			<input type="hidden" name="device_browser" id="c_device_browser" value="">
+			<input type="hidden" name="det_session_id" id="c_session_id" value="">
+			<input type="hidden" name="username" id="c_username" value="">
+
+			<input type="button" data-theme="b" name="submit" id="contact_button" value="Submit">
+
+		</form>
+
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-c1">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- ui-icon-arrow-u ui-btn-icon-top -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+
+  <div data-role="page" class="jqm-demos" id="email_alert" data-title="E-mail Alert">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>E-mail Alert</h1>
+        <a href="#nav-panel-c2" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>				
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h1>E-mail Alert</h1>
+
+		<form id="emaform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="emlname">Name: <span class="star">*</span></label>
+				<input type="text" name="emlname" id="emlname" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="eml_email">E-mail ID: <span class="star">*</span></label>
+				<input type="text" name="eml_email" id="eml_email" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="eml_days">Days: <span class="star">*</span></label>
+				<select name="eml_days" id="eml_days" data-native-menu="false">
+				
+					<option value="">Select Days</option>
+					<option value="yesterday">Yesterday</option>
+					<option value="lastweek">Last Week</option>
+					<option value="lastmonth">Last Month</option>
+					<option value="never">Never</option>
+				</select>
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="eml_client">E-mail Client Software:</label>
+				<input type="text" name="eml_client" id="eml_client" class="required" minlength="4">
+			</fieldset>
+			
+			<input type="hidden" name="device_platform" id="e_device_platform" value="">
+			<input type="hidden" name="device_id" id="e_device_uuid" value="">
+			<input type="hidden" name="device_browser" id="e_device_browser" value="">
+			<input type="hidden" name="det_session_id" id="e_session_id" value="">
+			<input type="hidden" name="username" id="e_username" value="">
+
+			<input type="button" data-theme="b" name="submit" id="email_button" value="Submit">
+
+		</form>
+
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-c2">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- ui-icon-arrow-u ui-btn-icon-top -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+ 
+ <div data-role="page" class="jqm-demos" id="beforelogin" data-title="APP">
+
+     <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+        <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<center><h1>Login</h1></center>
+
+		<form id="lform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="username">Membership No:</label>
+				<input type="text" name="username" id="username" minlength="4" maxlength="20">
+			</fieldset>
+			
+			<input type="button" data-theme="b" name="submit" id="submit_login" value="Submit">
+
+		</form>
+		
+	</div><!-- /content -->
+</div>	
+	
+<div data-role="page" class="jqm-demos" id="login" data-title="APP">
+
+     <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+        <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<center><h1>Login1</h1></center>
+
+		<form id="lform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="username">Membership No:</label>
+				<input type="text" name="username" id="username2" minlength="4" maxlength="20">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" style="display:none1;" id="pin_id"> 
+				<label for="password">OTP No:</label>
+				<input type="text" name="password" id="password" minlength="4" maxlength="5">
+			</fieldset>
+			
+			<input type="button" data-theme="b" name="submit" id="submit_login2" value="Submit">
+
+		</form>
+		
+	</div><!-- /content -->
+</div>	
+	
+ <div data-role="page" class="jqm-demos" id="beforelogin2" data-title="APP">
+
+     <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+        <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<center><h1>Login</h1></center>
+
+		<form id="lform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="username">Username:</label>
+				<input type="text" name="username" id="username" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="password">Password:</label>
+				<input type="password" name="password" id="password" class="required" minlength="4">
+			</fieldset>
+
+			<input type="button" data-theme="b" name="submit" id="submit_login" value="Submit">
+
+		</form>
+		
+	</div><!-- /content -->
+
+ </div>
+ 
+  <div data-role="page" class="jqm-demos" id="freetrial" data-title="APP">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+        <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>		
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<center><h1>Free Trial</h1></center>
+
+		<form id="freeform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="regname">Name: <span class="star">*</span></label>
+				<input type="text" name="regname" id="regname" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="regemail">Email: <span class="star">*</span></label>
+				<input type="email" name="regemail" id="regemail" class="required email" minlength="2">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="skype">Skype ID:</label>
+				<input type="text" name="skype" id="skype" class="" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="org">Organisation: <span class="star">*</span></label>
+				<input type="text" name="org" id="org" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+
+					<label for="f_regcountry" class="select">Country: <span class="star">*</span></label>
+					<select name="f_regcountry" id="f_regcountry" data-native-menu="false" data-mini="true">
+				
+					<option value="">Select Country</option>
+					<option value="AF">Afghanistan</option>
+					<option value="AL">Albania</option>
+					<option value="DZ">Algeria</option>
+					<option value="AS">American samoa</option>
+					<option value="AD">Andorra</option>
+					<option value="AO">Angola</option>
+					<option value="AI">Anguilla</option>
+					<option value="AQ">Antarctica</option>
+					<option value="AG">Antigua and barbuda</option>
+					<option value="AR">Argentina</option>
+					<option value="AM">Armenia</option>
+					<option value="AW">Aruba</option>
+					<option value="AU">Australia</option>
+					<option value="AT">Austria</option>
+					<option value="AZ">Azerbaijan</option>
+					<option value="BS">Bahamas</option>
+					<option value="BH">Bahrain</option>
+					<option value="BD">Bangladesh</option>
+					<option value="BB">Barbados</option>
+					<option value="BY">Belarus</option>
+					<option value="BE">Belgium</option>
+					<option value="BZ">Belize</option>
+					<option value="BJ">Benin</option>
+					<option value="BM">Bermuda</option>
+					<option value="BT">Bhutan</option>
+					<option value="BO">Bolivia</option>
+					<option value="BA">Bosnia and herzegovina</option>
+					<option value="BW">Botswana</option>
+					<option value="BV">Bouvet island</option>
+					<option value="BR">Brazil</option>
+					<option value="IO">British indian ocean territory</option>
+					<option value="BN">Brunei darussalam</option>
+					<option value="BG">Bulgaria</option>
+					<option value="BF">Burkina faso</option>
+					<option value="BI">Burundi</option>
+					<option value="KH">Cambodia</option>
+					<option value="CM">Cameroon</option>
+					<option value="CA">Canada</option>
+					<option value="CV">Cape verde</option>
+					<option value="KY">Cayman islands</option>
+					<option value="CF">Central african republic</option>
+					<option value="TD">Chad</option>
+					<option value="CL">Chile</option>
+					<option value="CN">China</option>
+					<option value="CX">Christmas island</option>
+					<option value="CC">Cocos (keeling) islands</option>
+					<option value="CO">Colombia</option>
+					<option value="KM">Comoros</option>
+					<option value="CG">Congo</option>
+					<option value="CD">Congo, the democratic republic of the</option>
+					<option value="CK">Cook islands</option>
+					<option value="CR">Costa rica</option>
+					<option value="CI">Cote divoire</option>
+					<option value="HR">Croatia</option>
+					<option value="CU">Cuba</option>
+					<option value="CY">Cyprus</option>
+					<option value="CZ">Czech republic</option>
+					<option value="DK">Denmark</option>
+					<option value="DJ">Djibouti</option>
+					<option value="DM">Dominica</option>
+					<option value="DO">Dominican republic</option>
+					<option value="TP">East timor</option>
+					<option value="EC">Ecuador</option>
+					<option value="EG">Egypt</option>
+					<option value="SV">El salvador</option>
+					<option value="GQ">Equatorial guinea</option>
+					<option value="ER">Eritrea</option>
+					<option value="EE">Estonia</option>
+					<option value="ET">Ethiopia</option>
+					<option value="FK">Falkland islands (malvinas)</option>
+					<option value="FO">Faroe islands</option>
+					<option value="FJ">Fiji</option>
+					<option value="FI">Finland</option>
+					<option value="FR">France</option>
+					<option value="GF">French guiana</option>
+					<option value="PF">French polynesia</option>
+					<option value="TF">French southern territories</option>
+					<option value="GA">Gabon</option>
+					<option value="GM">Gambia</option>
+					<option value="GE">Georgia</option>
+					<option value="DE">Germany</option>
+					<option value="GH">Ghana</option>
+					<option value="GI">Gibraltar</option>
+					<option value="GR">Greece</option>
+					<option value="GL">Greenland</option>
+					<option value="GD">Grenada</option>
+					<option value="GP">Guadeloupe</option>
+					<option value="GU">Guam</option>
+					<option value="GT">Guatemala</option>
+					<option value="GN">Guinea</option>
+					<option value="GW">Guinea-bissau</option>
+					<option value="GY">Guyana</option>
+					<option value="HT">Haiti</option>
+					<option value="HM">Heard island and mcdonald islands</option>
+					<option value="VA">Vatican city</option>
+					<option value="HN">Honduras</option>
+					<option value="HK">Hong kong</option>
+					<option value="HU">Hungary</option>
+					<option value="IS">Iceland</option>
+					<option value="IN">India</option>
+					<option value="ID">Indonesia</option>
+					<option value="IR">Iran, islamic republic of</option>
+					<option value="IQ">Iraq</option>
+					<option value="IE">Ireland</option>
+					<option value="IM">Isle of man</option>
+					<option value="IL">Israel</option>
+					<option value="IT">Italy</option>
+					<option value="JM">Jamaica</option>
+					<option value="JP">Japan</option>
+					<option value="JO">Jordan</option>
+					<option value="KZ">Kazakstan</option>
+					<option value="KE">Kenya</option>
+					<option value="KI">Kiribati</option>
+					<option value="KP">Korea, democratic peoples republic of</option>
+					<option value="KR">Korea, republic of</option>
+					<option value="KV">Kosovo</option>
+					<option value="KW">Kuwait</option>
+					<option value="KG">Kyrgyzstan</option>
+					<option value="LA">Lao peoples democratic republic</option>
+					<option value="LV">Latvia</option>
+					<option value="LB">Lebanon</option>
+					<option value="LS">Lesotho</option>
+					<option value="LR">Liberia</option>
+					<option value="LY">Libyan arab jamahiriya</option>
+					<option value="LI">Liechtenstein</option>
+					<option value="LT">Lithuania</option>
+					<option value="LU">Luxembourg</option>
+					<option value="MO">Macau</option>
+					<option value="MK">Macedonia, the former yugoslav republic of</option>
+					<option value="MG">Madagascar</option>
+					<option value="MW">Malawi</option>
+					<option value="MY">Malaysia</option>
+					<option value="MV">Maldives</option>
+					<option value="ML">Mali</option>
+					<option value="MT">Malta</option>
+					<option value="MH">Marshall islands</option>
+					<option value="MQ">Martinique</option>
+					<option value="MR">Mauritania</option>
+					<option value="MU">Mauritius</option>
+					<option value="YT">Mayotte</option>
+					<option value="MX">Mexico</option>
+					<option value="FM">Micronesia, federated states of</option>
+					<option value="MD">Moldova, republic of</option>
+					<option value="MC">Monaco</option>
+					<option value="MN">Mongolia</option>
+					<option value="MJ">Montenegro</option>
+					<option value="MS">Montserrat</option>
+					<option value="MA">Morocco</option>
+					<option value="MZ">Mozambique</option>
+					<option value="MM">Myanmar</option>
+					<option value="NA">Namibia</option>
+					<option value="NR">Nauru</option>
+					<option value="NP">Nepal</option>
+					<option value="NL">Netherlands</option>
+					<option value="AN">Netherlands antilles</option>
+					<option value="NC">New caledonia</option>
+					<option value="NZ">New zealand</option>
+					<option value="NI">Nicaragua</option>
+					<option value="NE">Niger</option>
+					<option value="NG">Nigeria</option>
+					<option value="NU">Niue</option>
+					<option value="NF">Norfolk island</option>
+					<option value="MP">Northern mariana islands</option>
+					<option value="NO">Norway</option>
+					<option value="OM">Oman</option>
+					<option value="PK">Pakistan</option>
+					<option value="PW">Palau</option>
+					<option value="PS">Palestinian territory, occupied</option>
+					<option value="PA">Panama</option>
+					<option value="PG">Papua new guinea</option>
+					<option value="PY">Paraguay</option>
+					<option value="PE">Peru</option>
+					<option value="PH">Philippines</option>
+					<option value="PN">Pitcairn</option>
+					<option value="PL">Poland</option>
+					<option value="PT">Portugal</option>
+					<option value="PR">Puerto rico</option>
+					<option value="QA">Qatar</option>
+					<option value="RE">Reunion</option>
+					<option value="RO">Romania</option>
+					<option value="RU">Russian federation</option>
+					<option value="RW">Rwanda</option>
+					<option value="SH">Saint helena</option>
+					<option value="KN">Saint kitts and nevis</option>
+					<option value="LC">Saint lucia</option>
+					<option value="PM">Saint pierre and miquelon</option>
+					<option value="VC">Saint vincent and the grenadines</option>
+					<option value="WS">Samoa</option>
+					<option value="SM">San marino</option>
+					<option value="ST">Sao tome and principe</option>
+					<option value="SA">Saudi arabia</option>
+					<option value="RB">Serbia</option>
+					<option value="SN">Senegal</option>
+					<option value="SC">Seychelles</option>
+					<option value="SL">Sierra leone</option>
+					<option value="SG">Singapore</option>
+					<option value="SK">Slovakia</option>
+					<option value="SI">Slovenia</option>
+					<option value="SB">Solomon islands</option>
+					<option value="SO">Somalia</option>
+					<option value="ZA">South africa</option>
+					<option value="GS">South georgia and the south sandwich islands</option>
+					<option value="SS">South Sudan</option>
+					<option value="ES">Spain</option>
+					<option value="LK">Sri lanka</option>
+					<option value="SD">Sudan</option>
+					<option value="SR">Suriname</option>
+					<option value="SJ">Svalbard and jan mayen</option>
+					<option value="SZ">Swaziland</option>
+					<option value="SE">Sweden</option>
+					<option value="CH">Switzerland</option>
+					<option value="SY">Syrian arab republic</option>
+					<option value="TW">Taiwan, province of china</option>
+					<option value="TJ">Tajikistan</option>
+					<option value="TZ">Tanzania, united republic of</option>
+					<option value="TH">Thailand</option>
+					<option value="TG">Togo</option>
+					<option value="TK">Tokelau</option>
+					<option value="TO">Tonga</option>
+					<option value="TT">Trinidad and tobago</option>
+					<option value="TN">Tunisia</option>
+					<option value="TR">Turkey</option>
+					<option value="TM">Turkmenistan</option>
+					<option value="TC">Turks and caicos islands</option>
+					<option value="TV">Tuvalu</option>
+					<option value="UG">Uganda</option>
+					<option value="UA">Ukraine</option>
+					<option value="AE">United arab emirates</option>
+					<option value="GB">United kingdom</option>
+					<option value="US">United states</option>
+					<option value="UM">United states minor outlying islands</option>
+					<option value="UY">Uruguay</option>
+					<option value="UZ">Uzbekistan</option>
+					<option value="VU">Vanuatu</option>
+					<option value="VE">Venezuela</option>
+					<option value="VN">Viet nam</option>
+					<option value="VG">Virgin islands, british</option>
+					<option value="VI">Virgin islands, u.s.</option>
+					<option value="WF">Wallis and futuna</option>
+					<option value="EH">Western sahara</option>
+					<option value="YE">Yemen</option>
+					<option value="ZM">Zambia</option>
+					<option value="ZW">Zimbabwe</option>
+
+				</select>
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="tel">Telephone No.: <span class="star">*</span></label>
+				<input type="tel" name="tel" id="tel" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="url">URL:</label>
+				<input type="url" name="url" id="url">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="product">Product & Services:</label>
+				<input type="text" name="product" id="product">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain" > 
+				<label for="operation">Geographical Preference:</label>
+				<input type="text" name="operation" id="operation">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="operation1"></label>
+				<label for="operation2">
+				<input type="checkbox" name="chk1" value="free" id="f_chk1" class="required">
+					I have read and agreed to the 
+					<a href="terms.html" class="ui-shadow ui-corner-all ui-btn-inline">Terms & Conditions</a>
+					to request for free trail.</label>
+			</fieldset>
+			
+			<input type="hidden" name="device_platform" id="f_device_platform" value="">
+			<input type="hidden" name="device_id" id="f_device_uuid" value="">
+			<input type="hidden" name="device_browser" id="f_device_browser" value="">
+			
+			<input type="button" data-theme="b" name="submit" id="submit_free" value="Submit">
+			
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			
+		</form>
+		
+	</div><!-- /content -->
+
+
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar" id="lbar">
+			<ul>
+				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Search</a></li>
+				<li><a href="#" OnClick="Login(); return false;" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
+				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all ui-btn-active">Free Trial</a></li>
+				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Subscribe</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+
+ </div>
+ 
+  <div data-role="page" class="jqm-demos" id="subscribe" data-title="APP">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+        <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<center><h1>Subscribe</h1></center>
+
+		<form id="signup_form" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="regname">Name: <span class="star">*</span></label>
+				<input type="text" name="regname" id="s_regname" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="regemail">Email: <span class="star">*</span></label>
+				<input type="email" name="regemail" id="s_regemail" class="required email" minlength="2">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="org">Organisation: <span class="star">*</span></label>
+				<input type="text" name="org" id="s_org" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="add1">Address: <span class="star">*</span></label>
+				<input type="text" name="add1" id="s_add1" class="" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="add2"></label>
+				<input type="text" name="add2" id="s_add2" class="" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="city">City: <span class="star">*</span></label>
+				<input type="text" name="city" id="s_city" class="required" minlength="4">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="pincode">PIN/ZIP Code:</label>
+				<input type="text" name="pincode" id="s_pincode" class="" minlength="4">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="regcountry">Country: <span class="star">*</span></label>
+				<select id="s_regcountry" name="regcountry" data-native-menu="false" data-mini="true">
+					<option value="">Select Country</option>
+					<option value="AF">Afghanistan</option>
+					<option value="AL">Albania</option>
+					<option value="DZ">Algeria</option>
+					<option value="AS">American samoa</option>
+					<option value="AD">Andorra</option>
+					<option value="AO">Angola</option>
+					<option value="AI">Anguilla</option>
+					<option value="AQ">Antarctica</option>
+					<option value="AG">Antigua and barbuda</option>
+					<option value="AR">Argentina</option>
+					<option value="AM">Armenia</option>
+					<option value="AW">Aruba</option>
+					<option value="AU">Australia</option>
+					<option value="AT">Austria</option>
+					<option value="AZ">Azerbaijan</option>
+					<option value="BS">Bahamas</option>
+					<option value="BH">Bahrain</option>
+					<option value="BD">Bangladesh</option>
+					<option value="BB">Barbados</option>
+					<option value="BY">Belarus</option>
+					<option value="BE">Belgium</option>
+					<option value="BZ">Belize</option>
+					<option value="BJ">Benin</option>
+					<option value="BM">Bermuda</option>
+					<option value="BT">Bhutan</option>
+					<option value="BO">Bolivia</option>
+					<option value="BA">Bosnia and herzegovina</option>
+					<option value="BW">Botswana</option>
+					<option value="BV">Bouvet island</option>
+					<option value="BR">Brazil</option>
+					<option value="IO">British indian ocean territory</option>
+					<option value="BN">Brunei darussalam</option>
+					<option value="BG">Bulgaria</option>
+					<option value="BF">Burkina faso</option>
+					<option value="BI">Burundi</option>
+					<option value="KH">Cambodia</option>
+					<option value="CM">Cameroon</option>
+					<option value="CA">Canada</option>
+					<option value="CV">Cape verde</option>
+					<option value="KY">Cayman islands</option>
+					<option value="CF">Central african republic</option>
+					<option value="TD">Chad</option>
+					<option value="CL">Chile</option>
+					<option value="CN">China</option>
+					<option value="CX">Christmas island</option>
+					<option value="CC">Cocos (keeling) islands</option>
+					<option value="CO">Colombia</option>
+					<option value="KM">Comoros</option>
+					<option value="CG">Congo</option>
+					<option value="CD">Congo, the democratic republic of the</option>
+					<option value="CK">Cook islands</option>
+					<option value="CR">Costa rica</option>
+					<option value="CI">Cote divoire</option>
+					<option value="HR">Croatia</option>
+					<option value="CU">Cuba</option>
+					<option value="CY">Cyprus</option>
+					<option value="CZ">Czech republic</option>
+					<option value="DK">Denmark</option>
+					<option value="DJ">Djibouti</option>
+					<option value="DM">Dominica</option>
+					<option value="DO">Dominican republic</option>
+					<option value="TP">East timor</option>
+					<option value="EC">Ecuador</option>
+					<option value="EG">Egypt</option>
+					<option value="SV">El salvador</option>
+					<option value="GQ">Equatorial guinea</option>
+					<option value="ER">Eritrea</option>
+					<option value="EE">Estonia</option>
+					<option value="ET">Ethiopia</option>
+					<option value="FK">Falkland islands (malvinas)</option>
+					<option value="FO">Faroe islands</option>
+					<option value="FJ">Fiji</option>
+					<option value="FI">Finland</option>
+					<option value="FR">France</option>
+					<option value="GF">French guiana</option>
+					<option value="PF">French polynesia</option>
+					<option value="TF">French southern territories</option>
+					<option value="GA">Gabon</option>
+					<option value="GM">Gambia</option>
+					<option value="GE">Georgia</option>
+					<option value="DE">Germany</option>
+					<option value="GH">Ghana</option>
+					<option value="GI">Gibraltar</option>
+					<option value="GR">Greece</option>
+					<option value="GL">Greenland</option>
+					<option value="GD">Grenada</option>
+					<option value="GP">Guadeloupe</option>
+					<option value="GU">Guam</option>
+					<option value="GT">Guatemala</option>
+					<option value="GN">Guinea</option>
+					<option value="GW">Guinea-bissau</option>
+					<option value="GY">Guyana</option>
+					<option value="HT">Haiti</option>
+					<option value="HM">Heard island and mcdonald islands</option>
+					<option value="VA">Vatican city</option>
+					<option value="HN">Honduras</option>
+					<option value="HK">Hong kong</option>
+					<option value="HU">Hungary</option>
+					<option value="IS">Iceland</option>
+					<option value="IN">India</option>
+					<option value="ID">Indonesia</option>
+					<option value="IR">Iran, islamic republic of</option>
+					<option value="IQ">Iraq</option>
+					<option value="IE">Ireland</option>
+					<option value="IM">Isle of man</option>
+					<option value="IL">Israel</option>
+					<option value="IT">Italy</option>
+					<option value="JM">Jamaica</option>
+					<option value="JP">Japan</option>
+					<option value="JO">Jordan</option>
+					<option value="KZ">Kazakstan</option>
+					<option value="KE">Kenya</option>
+					<option value="KI">Kiribati</option>
+					<option value="KP">Korea, democratic peoples republic of</option>
+					<option value="KR">Korea, republic of</option>
+					<option value="KV">Kosovo</option>
+					<option value="KW">Kuwait</option>
+					<option value="KG">Kyrgyzstan</option>
+					<option value="LA">Lao peoples democratic republic</option>
+					<option value="LV">Latvia</option>
+					<option value="LB">Lebanon</option>
+					<option value="LS">Lesotho</option>
+					<option value="LR">Liberia</option>
+					<option value="LY">Libyan arab jamahiriya</option>
+					<option value="LI">Liechtenstein</option>
+					<option value="LT">Lithuania</option>
+					<option value="LU">Luxembourg</option>
+					<option value="MO">Macau</option>
+					<option value="MK">Macedonia, the former yugoslav republic of</option>
+					<option value="MG">Madagascar</option>
+					<option value="MW">Malawi</option>
+					<option value="MY">Malaysia</option>
+					<option value="MV">Maldives</option>
+					<option value="ML">Mali</option>
+					<option value="MT">Malta</option>
+					<option value="MH">Marshall islands</option>
+					<option value="MQ">Martinique</option>
+					<option value="MR">Mauritania</option>
+					<option value="MU">Mauritius</option>
+					<option value="YT">Mayotte</option>
+					<option value="MX">Mexico</option>
+					<option value="FM">Micronesia, federated states of</option>
+					<option value="MD">Moldova, republic of</option>
+					<option value="MC">Monaco</option>
+					<option value="MN">Mongolia</option>
+					<option value="MJ">Montenegro</option>
+					<option value="MS">Montserrat</option>
+					<option value="MA">Morocco</option>
+					<option value="MZ">Mozambique</option>
+					<option value="MM">Myanmar</option>
+					<option value="NA">Namibia</option>
+					<option value="NR">Nauru</option>
+					<option value="NP">Nepal</option>
+					<option value="NL">Netherlands</option>
+					<option value="AN">Netherlands antilles</option>
+					<option value="NC">New caledonia</option>
+					<option value="NZ">New zealand</option>
+					<option value="NI">Nicaragua</option>
+					<option value="NE">Niger</option>
+					<option value="NG">Nigeria</option>
+					<option value="NU">Niue</option>
+					<option value="NF">Norfolk island</option>
+					<option value="MP">Northern mariana islands</option>
+					<option value="NO">Norway</option>
+					<option value="OM">Oman</option>
+					<option value="PK">Pakistan</option>
+					<option value="PW">Palau</option>
+					<option value="PS">Palestinian territory, occupied</option>
+					<option value="PA">Panama</option>
+					<option value="PG">Papua new guinea</option>
+					<option value="PY">Paraguay</option>
+					<option value="PE">Peru</option>
+					<option value="PH">Philippines</option>
+					<option value="PN">Pitcairn</option>
+					<option value="PL">Poland</option>
+					<option value="PT">Portugal</option>
+					<option value="PR">Puerto rico</option>
+					<option value="QA">Qatar</option>
+					<option value="RE">Reunion</option>
+					<option value="RO">Romania</option>
+					<option value="RU">Russian federation</option>
+					<option value="RW">Rwanda</option>
+					<option value="SH">Saint helena</option>
+					<option value="KN">Saint kitts and nevis</option>
+					<option value="LC">Saint lucia</option>
+					<option value="PM">Saint pierre and miquelon</option>
+					<option value="VC">Saint vincent and the grenadines</option>
+					<option value="WS">Samoa</option>
+					<option value="SM">San marino</option>
+					<option value="ST">Sao tome and principe</option>
+					<option value="SA">Saudi arabia</option>
+					<option value="RB">Serbia</option>
+					<option value="SN">Senegal</option>
+					<option value="SC">Seychelles</option>
+					<option value="SL">Sierra leone</option>
+					<option value="SG">Singapore</option>
+					<option value="SK">Slovakia</option>
+					<option value="SI">Slovenia</option>
+					<option value="SB">Solomon islands</option>
+					<option value="SO">Somalia</option>
+					<option value="ZA">South africa</option>
+					<option value="GS">South georgia and the south sandwich islands</option>
+					<option value="SS">South Sudan</option>
+					<option value="ES">Spain</option>
+					<option value="LK">Sri lanka</option>
+					<option value="SD">Sudan</option>
+					<option value="SR">Suriname</option>
+					<option value="SJ">Svalbard and jan mayen</option>
+					<option value="SZ">Swaziland</option>
+					<option value="SE">Sweden</option>
+					<option value="CH">Switzerland</option>
+					<option value="SY">Syrian arab republic</option>
+					<option value="TW">Taiwan, province of china</option>
+					<option value="TJ">Tajikistan</option>
+					<option value="TZ">Tanzania, united republic of</option>
+					<option value="TH">Thailand</option>
+					<option value="TG">Togo</option>
+					<option value="TK">Tokelau</option>
+					<option value="TO">Tonga</option>
+					<option value="TT">Trinidad and tobago</option>
+					<option value="TN">Tunisia</option>
+					<option value="TR">Turkey</option>
+					<option value="TM">Turkmenistan</option>
+					<option value="TC">Turks and caicos islands</option>
+					<option value="TV">Tuvalu</option>
+					<option value="UG">Uganda</option>
+					<option value="UA">Ukraine</option>
+					<option value="AE">United arab emirates</option>
+					<option value="GB">United kingdom</option>
+					<option value="US">United states</option>
+					<option value="UM">United states minor outlying islands</option>
+					<option value="UY">Uruguay</option>
+					<option value="UZ">Uzbekistan</option>
+					<option value="VU">Vanuatu</option>
+					<option value="VE">Venezuela</option>
+					<option value="VN">Viet nam</option>
+					<option value="VG">Virgin islands, british</option>
+					<option value="VI">Virgin islands, u.s.</option>
+					<option value="WF">Wallis and futuna</option>
+					<option value="EH">Western sahara</option>
+					<option value="YE">Yemen</option>
+					<option value="ZM">Zambia</option>
+					<option value="ZW">Zimbabwe</option>
+				</select>
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="tel">Telephone No.: <span class="star">*</span></label>
+				<input type="tel" name="tel" id="s_tel" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="url">URL:</label>
+				<input type="url" name="url" id="s_url">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="product">Product & Services:</label>
+				<input type="text" name="product" id="s_product">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain" > 
+				<label for="operation">Geographical Preference:</label>
+				<input type="text" name="operation" id="s_operation">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="setalert1">Set Email Alert</label>
+				<label for="setalert2">
+				<input type="checkbox" name="setalert" id="s_setalert" class="required"></label>
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="operation1"></label>
+				<label for="operation2">
+				<input type="checkbox" name="chk1" id="s_chk1" class="required">
+					Your submission of this form will constitute that you have read and understood the <a href="terms.html" class="ui-shadow ui-corner-all ui-btn-inline">Terms & Conditions</a> for subscribing 
+to Tendersinfo.com and you accept To Comply With The
+					<a href="terms.html" class="ui-shadow ui-corner-all ui-btn-inline">Terms & Conditions</a>
+					of the Agreement.</label>
+			</fieldset>
+			
+			<input type="hidden" name="device_platform" id="s_device_platform" value="">
+			<input type="hidden" name="device_id" id="s_device_uuid" value="">
+			<input type="hidden" name="device_browser" id="s_device_browser" value="">
+			
+			<input type="button" data-theme="b" name="submit" id="submit_signup" value="Submit">
+			
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			
+		</form>
+		
+	</div><!-- /content -->
+
+
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar" id="lbar">
+			<ul>
+				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Search</a></li>
+				<li><a href="#" OnClick="Login(); return false;" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
+				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Free Trial</a></li>
+				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all ui-btn-active">Subscribe</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+
+ </div>
+ 
+  <div data-role="page" class="jqm-demos" id="search" data-title="APP">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+        <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+		
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+		<center><h1>Search Tenders</h1></center>
+
+		<form id="bsearchform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+
+			<fieldset data-role="fieldcontain"> 
+		
+					<label for="region" class="select">Region or Country:</label>
+					<select multiple="multiple"  name="region" id="region" data-native-menu="false" data-mini="true">
+				<option>Select Region/Country</option>
+
+			    <option value="REG0100" >Africa</option>
+				<option value="REG0200" >Americas</option>
+				<option value="REG1000" >APEC Countries</option>
+				<option value="REG0300" >Asia</option>
+				<option value="REG0900" >Asia Pacific</option>
+				<option value="REG0400" >Australia & Oceania</option>
+				<option value="REG0401" >Australia and New Zealand</option>
+				<option value="REG1100" >Balkan Region</option>
+				<option value="REG0506" >Baltic</option>
+				<option value="REG0201" >Caribbean</option>
+				<option value="REG0101" >Central Africa/Middle Africa</option>
+				<option value="REG0202" >Central America</option>
+				<option value="REG0301" >Central Asia</option>
+				<option value="REG0505" >Central Europe</option>
+				<option value="REG0600" >CIS</option>
+				<option value="REG0102" >East Africa/Eastern Africa</option>
+				<option value="REG0302" >Eastern Asia</option>
+				<option value="REG0501" >Eastern Europe</option>
+				<option value="REG0500" >Europe</option>
+				<option value="REG0308" >Gulf Cooperation Council(GCC)</option>
+				<option value="REG0205" >Latin America</option>
+				<option value="REG0700" >Mediterranean</option>
+				<option value="REG0402" >Melanesia</option>
+				<option value="REG0800" >MENA Countries</option>
+				<option value="REG0403" >Micronesia</option>
+				<option value="REG0303" >Middle East</option>
+				<option value="REG0103" >North Africa/Northern Africa</option>
+				<option value="REG0203" >Northern America</option>
+				<option value="REG0502" >Northern Europe</option>
+				<option value="REG0404" >Polynesia</option>
+				<option value="REG0307" >SAARC</option>
+				<option value="REG0204" >South America</option>
+				<option value="REG0304" >South Asia</option>
+				<option value="REG0305" >South East Asia</option>
+				<option value="REG0405" >South Pacific Oceania</option>
+				<option value="REG0104" >Southern Africa</option>
+				<option value="REG0503" >Southern Europe</option>
+				<option value="REG0106" >Sub-Saharan Africa</option>
+				<option value="REG0105" >West Africa</option>
+				<option value="REG0306" >Western Asia</option>
+				<option value="REG0504" >Western Europe</option>
+					<option value="AF">Afghanistan</option>
+					<option value="AL">Albania</option>
+					<option value="DZ">Algeria</option>
+					<option value="AS">American samoa</option>
+					<option value="AD">Andorra</option>
+					<option value="AO">Angola</option>
+					<option value="AI">Anguilla</option>
+					<option value="AQ">Antarctica</option>
+					<option value="AG">Antigua and barbuda</option>
+					<option value="AR">Argentina</option>
+					<option value="AM">Armenia</option>
+					<option value="AW">Aruba</option>
+					<option value="AU">Australia</option>
+					<option value="AT">Austria</option>
+					<option value="AZ">Azerbaijan</option>
+					<option value="BS">Bahamas</option>
+					<option value="BH">Bahrain</option>
+					<option value="BD">Bangladesh</option>
+					<option value="BB">Barbados</option>
+					<option value="BY">Belarus</option>
+					<option value="BE">Belgium</option>
+					<option value="BZ">Belize</option>
+					<option value="BJ">Benin</option>
+					<option value="BM">Bermuda</option>
+					<option value="BT">Bhutan</option>
+					<option value="BO">Bolivia</option>
+					<option value="BA">Bosnia and herzegovina</option>
+					<option value="BW">Botswana</option>
+					<option value="BV">Bouvet island</option>
+					<option value="BR">Brazil</option>
+					<option value="IO">British indian ocean territory</option>
+					<option value="BN">Brunei darussalam</option>
+					<option value="BG">Bulgaria</option>
+					<option value="BF">Burkina faso</option>
+					<option value="BI">Burundi</option>
+					<option value="KH">Cambodia</option>
+					<option value="CM">Cameroon</option>
+					<option value="CA">Canada</option>
+					<option value="CV">Cape verde</option>
+					<option value="KY">Cayman islands</option>
+					<option value="CF">Central african republic</option>
+					<option value="TD">Chad</option>
+					<option value="CL">Chile</option>
+					<option value="CN">China</option>
+					<option value="CX">Christmas island</option>
+					<option value="CC">Cocos (keeling) islands</option>
+					<option value="CO">Colombia</option>
+					<option value="KM">Comoros</option>
+					<option value="CG">Congo</option>
+					<option value="CD">Congo, the democratic republic of the</option>
+					<option value="CK">Cook islands</option>
+					<option value="CR">Costa rica</option>
+					<option value="CI">Cote divoire</option>
+					<option value="HR">Croatia</option>
+					<option value="CU">Cuba</option>
+					<option value="CY">Cyprus</option>
+					<option value="CZ">Czech republic</option>
+					<option value="DK">Denmark</option>
+					<option value="DJ">Djibouti</option>
+					<option value="DM">Dominica</option>
+					<option value="DO">Dominican republic</option>
+					<option value="TP">East timor</option>
+					<option value="EC">Ecuador</option>
+					<option value="EG">Egypt</option>
+					<option value="SV">El salvador</option>
+					<option value="GQ">Equatorial guinea</option>
+					<option value="ER">Eritrea</option>
+					<option value="EE">Estonia</option>
+					<option value="ET">Ethiopia</option>
+					<option value="FK">Falkland islands (malvinas)</option>
+					<option value="FO">Faroe islands</option>
+					<option value="FJ">Fiji</option>
+					<option value="FI">Finland</option>
+					<option value="FR">France</option>
+					<option value="GF">French guiana</option>
+					<option value="PF">French polynesia</option>
+					<option value="TF">French southern territories</option>
+					<option value="GA">Gabon</option>
+					<option value="GM">Gambia</option>
+					<option value="GE">Georgia</option>
+					<option value="DE">Germany</option>
+					<option value="GH">Ghana</option>
+					<option value="GI">Gibraltar</option>
+					<option value="GR">Greece</option>
+					<option value="GL">Greenland</option>
+					<option value="GD">Grenada</option>
+					<option value="GP">Guadeloupe</option>
+					<option value="GU">Guam</option>
+					<option value="GT">Guatemala</option>
+					<option value="GN">Guinea</option>
+					<option value="GW">Guinea-bissau</option>
+					<option value="GY">Guyana</option>
+					<option value="HT">Haiti</option>
+					<option value="HM">Heard island and mcdonald islands</option>
+					<option value="VA">Vatican city</option>
+					<option value="HN">Honduras</option>
+					<option value="HK">Hong kong</option>
+					<option value="HU">Hungary</option>
+					<option value="IS">Iceland</option>
+					<option value="IN">India</option>
+					<option value="ID">Indonesia</option>
+					<option value="IR">Iran, islamic republic of</option>
+					<option value="IQ">Iraq</option>
+					<option value="IE">Ireland</option>
+					<option value="IM">Isle of man</option>
+					<option value="IL">Israel</option>
+					<option value="IT">Italy</option>
+					<option value="JM">Jamaica</option>
+					<option value="JP">Japan</option>
+					<option value="JO">Jordan</option>
+					<option value="KZ">Kazakstan</option>
+					<option value="KE">Kenya</option>
+					<option value="KI">Kiribati</option>
+					<option value="KP">Korea, democratic peoples republic of</option>
+					<option value="KR">Korea, republic of</option>
+					<option value="KV">Kosovo</option>
+					<option value="KW">Kuwait</option>
+					<option value="KG">Kyrgyzstan</option>
+					<option value="LA">Lao peoples democratic republic</option>
+					<option value="LV">Latvia</option>
+					<option value="LB">Lebanon</option>
+					<option value="LS">Lesotho</option>
+					<option value="LR">Liberia</option>
+					<option value="LY">Libyan arab jamahiriya</option>
+					<option value="LI">Liechtenstein</option>
+					<option value="LT">Lithuania</option>
+					<option value="LU">Luxembourg</option>
+					<option value="MO">Macau</option>
+					<option value="MK">Macedonia, the former yugoslav republic of</option>
+					<option value="MG">Madagascar</option>
+					<option value="MW">Malawi</option>
+					<option value="MY">Malaysia</option>
+					<option value="MV">Maldives</option>
+					<option value="ML">Mali</option>
+					<option value="MT">Malta</option>
+					<option value="MH">Marshall islands</option>
+					<option value="MQ">Martinique</option>
+					<option value="MR">Mauritania</option>
+					<option value="MU">Mauritius</option>
+					<option value="YT">Mayotte</option>
+					<option value="MX">Mexico</option>
+					<option value="FM">Micronesia, federated states of</option>
+					<option value="MD">Moldova, republic of</option>
+					<option value="MC">Monaco</option>
+					<option value="MN">Mongolia</option>
+					<option value="MJ">Montenegro</option>
+					<option value="MS">Montserrat</option>
+					<option value="MA">Morocco</option>
+					<option value="MZ">Mozambique</option>
+					<option value="MM">Myanmar</option>
+					<option value="NA">Namibia</option>
+					<option value="NR">Nauru</option>
+					<option value="NP">Nepal</option>
+					<option value="NL">Netherlands</option>
+					<option value="AN">Netherlands antilles</option>
+					<option value="NC">New caledonia</option>
+					<option value="NZ">New zealand</option>
+					<option value="NI">Nicaragua</option>
+					<option value="NE">Niger</option>
+					<option value="NG">Nigeria</option>
+					<option value="NU">Niue</option>
+					<option value="NF">Norfolk island</option>
+					<option value="MP">Northern mariana islands</option>
+					<option value="NO">Norway</option>
+					<option value="OM">Oman</option>
+					<option value="PK">Pakistan</option>
+					<option value="PW">Palau</option>
+					<option value="PS">Palestinian territory, occupied</option>
+					<option value="PA">Panama</option>
+					<option value="PG">Papua new guinea</option>
+					<option value="PY">Paraguay</option>
+					<option value="PE">Peru</option>
+					<option value="PH">Philippines</option>
+					<option value="PN">Pitcairn</option>
+					<option value="PL">Poland</option>
+					<option value="PT">Portugal</option>
+					<option value="PR">Puerto rico</option>
+					<option value="QA">Qatar</option>
+					<option value="RE">Reunion</option>
+					<option value="RO">Romania</option>
+					<option value="RU">Russian federation</option>
+					<option value="RW">Rwanda</option>
+					<option value="SH">Saint helena</option>
+					<option value="KN">Saint kitts and nevis</option>
+					<option value="LC">Saint lucia</option>
+					<option value="PM">Saint pierre and miquelon</option>
+					<option value="VC">Saint vincent and the grenadines</option>
+					<option value="WS">Samoa</option>
+					<option value="SM">San marino</option>
+					<option value="ST">Sao tome and principe</option>
+					<option value="SA">Saudi arabia</option>
+					<option value="RB">Serbia</option>
+					<option value="SN">Senegal</option>
+					<option value="SC">Seychelles</option>
+					<option value="SL">Sierra leone</option>
+					<option value="SG">Singapore</option>
+					<option value="SK">Slovakia</option>
+					<option value="SI">Slovenia</option>
+					<option value="SB">Solomon islands</option>
+					<option value="SO">Somalia</option>
+					<option value="ZA">South africa</option>
+					<option value="GS">South georgia and the south sandwich islands</option>
+					<option value="SS">South Sudan</option>
+					<option value="ES">Spain</option>
+					<option value="LK">Sri lanka</option>
+					<option value="SD">Sudan</option>
+					<option value="SR">Suriname</option>
+					<option value="SJ">Svalbard and jan mayen</option>
+					<option value="SZ">Swaziland</option>
+					<option value="SE">Sweden</option>
+					<option value="CH">Switzerland</option>
+					<option value="SY">Syrian arab republic</option>
+					<option value="TW">Taiwan, province of china</option>
+					<option value="TJ">Tajikistan</option>
+					<option value="TZ">Tanzania, united republic of</option>
+					<option value="TH">Thailand</option>
+					<option value="TG">Togo</option>
+					<option value="TK">Tokelau</option>
+					<option value="TO">Tonga</option>
+					<option value="TT">Trinidad and tobago</option>
+					<option value="TN">Tunisia</option>
+					<option value="TR">Turkey</option>
+					<option value="TM">Turkmenistan</option>
+					<option value="TC">Turks and caicos islands</option>
+					<option value="TV">Tuvalu</option>
+					<option value="UG">Uganda</option>
+					<option value="UA">Ukraine</option>
+					<option value="AE">United arab emirates</option>
+					<option value="GB">United kingdom</option>
+					<option value="US">United states</option>
+					<option value="UM">United states minor outlying islands</option>
+					<option value="UY">Uruguay</option>
+					<option value="UZ">Uzbekistan</option>
+					<option value="VU">Vanuatu</option>
+					<option value="VE">Venezuela</option>
+					<option value="VN">Viet nam</option>
+					<option value="VG">Virgin islands, british</option>
+					<option value="VI">Virgin islands, u.s.</option>
+					<option value="WF">Wallis and futuna</option>
+					<option value="EH">Western sahara</option>
+					<option value="YE">Yemen</option>
+					<option value="ZM">Zambia</option>
+					<option value="ZW">Zimbabwe</option>
+
+
+
+				</select>
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+		
+					<label for="sector" class="select">Sector:</label>
+					<select multiple="multiple"  name="sector" id="sector" data-native-menu="false" data-mini="true">
+				<option>Select Sector</option>
+					<option value="01" >Agriculture, Food and Beverages </option>
+					<option value="0202" >Automobiles and Auto Parts</option>
+					<option value="0203" >Construction Materials </option>
+					<option value="0204" >Chemicals</option>
+					<option value="0206" >Machinery and Equipments(M&E)</option>
+					<option value="0207" >Metals and Non-Metals</option>
+					<option value="0208" >Minerals and Mining </option>
+					<option value="0209" >Paper and Packaging </option>
+					<option value="0210" >Plastic and Rubber</option>
+					<option value="0211" >Textile, Apparel and Footwear </option>
+					<option value="0212" >Fire Safety and Security</option>
+					<option value="0214" >Printing and Publishing</option>
+					<option value="02" >Industry</option>
+					<option value="17" >Telecommunications</option>
+					<option value="18" >Healthcare and Medicine</option>
+					<option value="1801" >Pharmaceuticals</option>
+					<option value="1802" >Healthcare Equipment and Services </option>
+					<option value="19" >Energy, Power and Electrical</option>
+					<option value="1928" >Industrial Automation and Control</option>
+					<option value="20" >Water and Sanitation</option>
+					<option value="21" >Transportation</option>
+					<option value="2101" >Aviation</option>
+					<option value="2102" >Marine</option>
+					<option value="2103" >Railways</option>
+					<option value="2104" >Roadways</option>
+					<option value="26" >Banking, Finance, Insurance and Securities (BFIS)</option>
+					<option value="2607" >BFIS - Insurance</option>
+					<option value="27" >Information Technology (IT)</option>
+					<option value="2701" >Technology Hardware and Equipment </option>
+					<option value="2702" >Software Services </option>
+					<option value="28" >Consultancy</option>
+					<option value="2802" >Engineering</option>
+					<option value="2803" >Consultancy - Financial </option>
+					<option value="2805" >Human Resource(HR) </option>
+					<option value="2807" >Management, Business and Administration</option>
+					<option value="2810" >Travel and Tourism</option>
+					<option value="2811" >Law and Legal</option>
+					<option value="2812" >Architecture and Urban Development</option>
+					<option value="44" >Oil and Gas</option>
+					<option value="4401" >Oil and Gas Product and Equipment</option>
+					<option value="4402" >Oil and Gas Services</option>
+					<option value="45" >Services</option>
+					<option value="4501" >Services - Entertainment & Media</option>
+					<option value="4502" >Security Services</option>
+					<option value="46" >Education and Training</option>
+					<option value="47" >Infrastructure and Construction</option>
+					<option value="4701" >Roads and Highways</option>
+					<option value="4702" >Bridges and Tunnels</option>
+					<option value="4703" >Infrastructure -  Tunnels</option>
+					<option value="4705" >Airports </option>
+					<option value="55" >Environment and Pollution</option>
+					<option value="56" >Defence</option>
+					<option value="4708" >Building</option>
+					<option value="4503" >Postal and Courier Services</option>
+					<option value="2703" >Smart Cards and Other Access Control System</option>
+					<option value="2704" >GIS/ GPS</option>
+					<option value="03" >Retail</option>
+					<option value="04" >Real Estate</option>
+					<option value="08" >laboratory Equipment and Services </option>
+					<option value="10" >Sports and Leisure</option>
+					<option value="0215" >Furniture</option>
+					<option value="1929" >Renewable Energy</option>
+					<option value="1930" >Non-Renewable Energy</option>
+				
+					</select>
+				
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="keyword">Keyword:</label>
+				<input type="text" name="keyword" id="keyword" data-clear-btn="true">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain" > 
+				<label for="select-choice-8" class="select">Tenders Posted:</label>
+
+
+				<select data-native-menu="false" class="form-control" name="postingdate" id="postingdate" data-mini="true">
+					<option selected="" value="all">All Time</option>
+					<option value="today">Today</option>
+					<option value="yesterday">Yesterday</option>
+					<option value="last7days">Last 7 Days</option>
+					<option value="last15days">Last 15 Days</option>
+					<option value="last30days">Last 30 Days</option>
+					<option value="thismonth">This Month</option>
+					<option value="lastmonth">Last Month</option>
+				</select>
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				
+					<label for="search_type" class="select">Notice Type:</label>
+					<select name="search_type" id="search_type" data-native-menu="false" data-mini="true">
+						<option value="tenders">Tenders &amp; RFPs</option>
+						<option value="projects" >Projects</option>
+						<option value="news" >Procurement News</option>
+						<option value="ca" >Contract Awards</option>
+
+					</select>
+				
+			</fieldset>
+						
+			<input type="hidden" name="device_platform" id="sr_device_platform" value="">
+			<input type="hidden" name="device_uuid" id="sr_device_uuid" value="">
+			<input type="hidden" name="device_browser" id="sr_device_browser" value="">
+			
+			<input type="button" data-theme="b" name="submit" id="submit_bsearch" value="Search">
+			
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+
+		</form>
 		
 			
-		</div>
+	</div><!-- /content -->
 
-		<script src="jquery.min.js"></script>
-		<script src="jquery-ui.min.js"></script>
-		<script src="jquery.mobile.min.js"></script>
-		<script src="vendor/waves/waves.min.js"></script>
-		<script src="js/nativedroid2.js"></script>
 
-	</body>
-</html>
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar" id="lbar">
+			<ul>
+				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all ui-btn-active">Search</a></li>
+				<li><a href="#" OnClick="Login(); return false;" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
+				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Free Trial</a></li>
+				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Subscribe</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+
+ </div>
+
+  <div data-role="page" class="jqm-demos" id="logsearch" data-title="Search">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>Search</h1>
+        <a href="#nav-panel-m3" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
+		
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<!--<h4>Login Page</h4>-->
+
+		<form id="logsearchform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="ti_ref_no">Ref ID:</label>
+				<input type="text" name="ti_ref_no" id="ti_ref_no" data-clear-btn="true">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+		
+					<label for="region" class="select">Region or Country:</label>
+					<select multiple="multiple"  name="region" id="region" data-native-menu="false" data-mini="true">
+				<option>Select Region/Country</option>
+
+			    <option value="REG0100" >Africa</option>
+				<option value="REG0200" >Americas</option>
+				<option value="REG1000" >APEC Countries</option>
+				<option value="REG0300" >Asia</option>
+				<option value="REG0900" >Asia Pacific</option>
+				<option value="REG0400" >Australia & Oceania</option>
+				<option value="REG0401" >Australia and New Zealand</option>
+				<option value="REG1100" >Balkan Region</option>
+				<option value="REG0506" >Baltic</option>
+				<option value="REG0201" >Caribbean</option>
+				<option value="REG0101" >Central Africa/Middle Africa</option>
+				<option value="REG0202" >Central America</option>
+				<option value="REG0301" >Central Asia</option>
+				<option value="REG0505" >Central Europe</option>
+				<option value="REG0600" >CIS</option>
+				<option value="REG0102" >East Africa/Eastern Africa</option>
+				<option value="REG0302" >Eastern Asia</option>
+				<option value="REG0501" >Eastern Europe</option>
+				<option value="REG0500" >Europe</option>
+				<option value="REG0308" >Gulf Cooperation Council(GCC)</option>
+				<option value="REG0205" >Latin America</option>
+				<option value="REG0700" >Mediterranean</option>
+				<option value="REG0402" >Melanesia</option>
+				<option value="REG0800" >MENA Countries</option>
+				<option value="REG0403" >Micronesia</option>
+				<option value="REG0303" >Middle East</option>
+				<option value="REG0103" >North Africa/Northern Africa</option>
+				<option value="REG0203" >Northern America</option>
+				<option value="REG0502" >Northern Europe</option>
+				<option value="REG0404" >Polynesia</option>
+				<option value="REG0307" >SAARC</option>
+				<option value="REG0204" >South America</option>
+				<option value="REG0304" >South Asia</option>
+				<option value="REG0305" >South East Asia</option>
+				<option value="REG0405" >South Pacific Oceania</option>
+				<option value="REG0104" >Southern Africa</option>
+				<option value="REG0503" >Southern Europe</option>
+				<option value="REG0106" >Sub-Saharan Africa</option>
+				<option value="REG0105" >West Africa</option>
+				<option value="REG0306" >Western Asia</option>
+				<option value="REG0504" >Western Europe</option>
+					<option value="AF">Afghanistan</option>
+					<option value="AL">Albania</option>
+					<option value="DZ">Algeria</option>
+					<option value="AS">American samoa</option>
+					<option value="AD">Andorra</option>
+					<option value="AO">Angola</option>
+					<option value="AI">Anguilla</option>
+					<option value="AQ">Antarctica</option>
+					<option value="AG">Antigua and barbuda</option>
+					<option value="AR">Argentina</option>
+					<option value="AM">Armenia</option>
+					<option value="AW">Aruba</option>
+					<option value="AU">Australia</option>
+					<option value="AT">Austria</option>
+					<option value="AZ">Azerbaijan</option>
+					<option value="BS">Bahamas</option>
+					<option value="BH">Bahrain</option>
+					<option value="BD">Bangladesh</option>
+					<option value="BB">Barbados</option>
+					<option value="BY">Belarus</option>
+					<option value="BE">Belgium</option>
+					<option value="BZ">Belize</option>
+					<option value="BJ">Benin</option>
+					<option value="BM">Bermuda</option>
+					<option value="BT">Bhutan</option>
+					<option value="BO">Bolivia</option>
+					<option value="BA">Bosnia and herzegovina</option>
+					<option value="BW">Botswana</option>
+					<option value="BV">Bouvet island</option>
+					<option value="BR">Brazil</option>
+					<option value="IO">British indian ocean territory</option>
+					<option value="BN">Brunei darussalam</option>
+					<option value="BG">Bulgaria</option>
+					<option value="BF">Burkina faso</option>
+					<option value="BI">Burundi</option>
+					<option value="KH">Cambodia</option>
+					<option value="CM">Cameroon</option>
+					<option value="CA">Canada</option>
+					<option value="CV">Cape verde</option>
+					<option value="KY">Cayman islands</option>
+					<option value="CF">Central african republic</option>
+					<option value="TD">Chad</option>
+					<option value="CL">Chile</option>
+					<option value="CN">China</option>
+					<option value="CX">Christmas island</option>
+					<option value="CC">Cocos (keeling) islands</option>
+					<option value="CO">Colombia</option>
+					<option value="KM">Comoros</option>
+					<option value="CG">Congo</option>
+					<option value="CD">Congo, the democratic republic of the</option>
+					<option value="CK">Cook islands</option>
+					<option value="CR">Costa rica</option>
+					<option value="CI">Cote divoire</option>
+					<option value="HR">Croatia</option>
+					<option value="CU">Cuba</option>
+					<option value="CY">Cyprus</option>
+					<option value="CZ">Czech republic</option>
+					<option value="DK">Denmark</option>
+					<option value="DJ">Djibouti</option>
+					<option value="DM">Dominica</option>
+					<option value="DO">Dominican republic</option>
+					<option value="TP">East timor</option>
+					<option value="EC">Ecuador</option>
+					<option value="EG">Egypt</option>
+					<option value="SV">El salvador</option>
+					<option value="GQ">Equatorial guinea</option>
+					<option value="ER">Eritrea</option>
+					<option value="EE">Estonia</option>
+					<option value="ET">Ethiopia</option>
+					<option value="FK">Falkland islands (malvinas)</option>
+					<option value="FO">Faroe islands</option>
+					<option value="FJ">Fiji</option>
+					<option value="FI">Finland</option>
+					<option value="FR">France</option>
+					<option value="GF">French guiana</option>
+					<option value="PF">French polynesia</option>
+					<option value="TF">French southern territories</option>
+					<option value="GA">Gabon</option>
+					<option value="GM">Gambia</option>
+					<option value="GE">Georgia</option>
+					<option value="DE">Germany</option>
+					<option value="GH">Ghana</option>
+					<option value="GI">Gibraltar</option>
+					<option value="GR">Greece</option>
+					<option value="GL">Greenland</option>
+					<option value="GD">Grenada</option>
+					<option value="GP">Guadeloupe</option>
+					<option value="GU">Guam</option>
+					<option value="GT">Guatemala</option>
+					<option value="GN">Guinea</option>
+					<option value="GW">Guinea-bissau</option>
+					<option value="GY">Guyana</option>
+					<option value="HT">Haiti</option>
+					<option value="HM">Heard island and mcdonald islands</option>
+					<option value="VA">Vatican city</option>
+					<option value="HN">Honduras</option>
+					<option value="HK">Hong kong</option>
+					<option value="HU">Hungary</option>
+					<option value="IS">Iceland</option>
+					<option value="IN">India</option>
+					<option value="ID">Indonesia</option>
+					<option value="IR">Iran, islamic republic of</option>
+					<option value="IQ">Iraq</option>
+					<option value="IE">Ireland</option>
+					<option value="IM">Isle of man</option>
+					<option value="IL">Israel</option>
+					<option value="IT">Italy</option>
+					<option value="JM">Jamaica</option>
+					<option value="JP">Japan</option>
+					<option value="JO">Jordan</option>
+					<option value="KZ">Kazakstan</option>
+					<option value="KE">Kenya</option>
+					<option value="KI">Kiribati</option>
+					<option value="KP">Korea, democratic peoples republic of</option>
+					<option value="KR">Korea, republic of</option>
+					<option value="KV">Kosovo</option>
+					<option value="KW">Kuwait</option>
+					<option value="KG">Kyrgyzstan</option>
+					<option value="LA">Lao peoples democratic republic</option>
+					<option value="LV">Latvia</option>
+					<option value="LB">Lebanon</option>
+					<option value="LS">Lesotho</option>
+					<option value="LR">Liberia</option>
+					<option value="LY">Libyan arab jamahiriya</option>
+					<option value="LI">Liechtenstein</option>
+					<option value="LT">Lithuania</option>
+					<option value="LU">Luxembourg</option>
+					<option value="MO">Macau</option>
+					<option value="MK">Macedonia, the former yugoslav republic of</option>
+					<option value="MG">Madagascar</option>
+					<option value="MW">Malawi</option>
+					<option value="MY">Malaysia</option>
+					<option value="MV">Maldives</option>
+					<option value="ML">Mali</option>
+					<option value="MT">Malta</option>
+					<option value="MH">Marshall islands</option>
+					<option value="MQ">Martinique</option>
+					<option value="MR">Mauritania</option>
+					<option value="MU">Mauritius</option>
+					<option value="YT">Mayotte</option>
+					<option value="MX">Mexico</option>
+					<option value="FM">Micronesia, federated states of</option>
+					<option value="MD">Moldova, republic of</option>
+					<option value="MC">Monaco</option>
+					<option value="MN">Mongolia</option>
+					<option value="MJ">Montenegro</option>
+					<option value="MS">Montserrat</option>
+					<option value="MA">Morocco</option>
+					<option value="MZ">Mozambique</option>
+					<option value="MM">Myanmar</option>
+					<option value="NA">Namibia</option>
+					<option value="NR">Nauru</option>
+					<option value="NP">Nepal</option>
+					<option value="NL">Netherlands</option>
+					<option value="AN">Netherlands antilles</option>
+					<option value="NC">New caledonia</option>
+					<option value="NZ">New zealand</option>
+					<option value="NI">Nicaragua</option>
+					<option value="NE">Niger</option>
+					<option value="NG">Nigeria</option>
+					<option value="NU">Niue</option>
+					<option value="NF">Norfolk island</option>
+					<option value="MP">Northern mariana islands</option>
+					<option value="NO">Norway</option>
+					<option value="OM">Oman</option>
+					<option value="PK">Pakistan</option>
+					<option value="PW">Palau</option>
+					<option value="PS">Palestinian territory, occupied</option>
+					<option value="PA">Panama</option>
+					<option value="PG">Papua new guinea</option>
+					<option value="PY">Paraguay</option>
+					<option value="PE">Peru</option>
+					<option value="PH">Philippines</option>
+					<option value="PN">Pitcairn</option>
+					<option value="PL">Poland</option>
+					<option value="PT">Portugal</option>
+					<option value="PR">Puerto rico</option>
+					<option value="QA">Qatar</option>
+					<option value="RE">Reunion</option>
+					<option value="RO">Romania</option>
+					<option value="RU">Russian federation</option>
+					<option value="RW">Rwanda</option>
+					<option value="SH">Saint helena</option>
+					<option value="KN">Saint kitts and nevis</option>
+					<option value="LC">Saint lucia</option>
+					<option value="PM">Saint pierre and miquelon</option>
+					<option value="VC">Saint vincent and the grenadines</option>
+					<option value="WS">Samoa</option>
+					<option value="SM">San marino</option>
+					<option value="ST">Sao tome and principe</option>
+					<option value="SA">Saudi arabia</option>
+					<option value="RB">Serbia</option>
+					<option value="SN">Senegal</option>
+					<option value="SC">Seychelles</option>
+					<option value="SL">Sierra leone</option>
+					<option value="SG">Singapore</option>
+					<option value="SK">Slovakia</option>
+					<option value="SI">Slovenia</option>
+					<option value="SB">Solomon islands</option>
+					<option value="SO">Somalia</option>
+					<option value="ZA">South africa</option>
+					<option value="GS">South georgia and the south sandwich islands</option>
+					<option value="SS">South Sudan</option>
+					<option value="ES">Spain</option>
+					<option value="LK">Sri lanka</option>
+					<option value="SD">Sudan</option>
+					<option value="SR">Suriname</option>
+					<option value="SJ">Svalbard and jan mayen</option>
+					<option value="SZ">Swaziland</option>
+					<option value="SE">Sweden</option>
+					<option value="CH">Switzerland</option>
+					<option value="SY">Syrian arab republic</option>
+					<option value="TW">Taiwan, province of china</option>
+					<option value="TJ">Tajikistan</option>
+					<option value="TZ">Tanzania, united republic of</option>
+					<option value="TH">Thailand</option>
+					<option value="TG">Togo</option>
+					<option value="TK">Tokelau</option>
+					<option value="TO">Tonga</option>
+					<option value="TT">Trinidad and tobago</option>
+					<option value="TN">Tunisia</option>
+					<option value="TR">Turkey</option>
+					<option value="TM">Turkmenistan</option>
+					<option value="TC">Turks and caicos islands</option>
+					<option value="TV">Tuvalu</option>
+					<option value="UG">Uganda</option>
+					<option value="UA">Ukraine</option>
+					<option value="AE">United arab emirates</option>
+					<option value="GB">United kingdom</option>
+					<option value="US">United states</option>
+					<option value="UM">United states minor outlying islands</option>
+					<option value="UY">Uruguay</option>
+					<option value="UZ">Uzbekistan</option>
+					<option value="VU">Vanuatu</option>
+					<option value="VE">Venezuela</option>
+					<option value="VN">Viet nam</option>
+					<option value="VG">Virgin islands, british</option>
+					<option value="VI">Virgin islands, u.s.</option>
+					<option value="WF">Wallis and futuna</option>
+					<option value="EH">Western sahara</option>
+					<option value="YE">Yemen</option>
+					<option value="ZM">Zambia</option>
+					<option value="ZW">Zimbabwe</option>
+
+
+
+				</select>
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+		
+					<label for="sector" class="select">Sector:</label>
+					<select multiple="multiple"  name="sector" id="sector" data-native-menu="false" data-mini="true">
+				<option>Select Sector</option>
+					<option value="01" >Agriculture, Food and Beverages </option>
+					<option value="0202" >Automobiles and Auto Parts</option>
+					<option value="0203" >Construction Materials </option>
+					<option value="0204" >Chemicals</option>
+					<option value="0206" >Machinery and Equipments(M&E)</option>
+					<option value="0207" >Metals and Non-Metals</option>
+					<option value="0208" >Minerals and Mining </option>
+					<option value="0209" >Paper and Packaging </option>
+					<option value="0210" >Plastic and Rubber</option>
+					<option value="0211" >Textile, Apparel and Footwear </option>
+					<option value="0212" >Fire Safety and Security</option>
+					<option value="0214" >Printing and Publishing</option>
+					<option value="02" >Industry</option>
+					<option value="17" >Telecommunications</option>
+					<option value="18" >Healthcare and Medicine</option>
+					<option value="1801" >Pharmaceuticals</option>
+					<option value="1802" >Healthcare Equipment and Services </option>
+					<option value="19" >Energy, Power and Electrical</option>
+					<option value="1928" >Industrial Automation and Control</option>
+					<option value="20" >Water and Sanitation</option>
+					<option value="21" >Transportation</option>
+					<option value="2101" >Aviation</option>
+					<option value="2102" >Marine</option>
+					<option value="2103" >Railways</option>
+					<option value="2104" >Roadways</option>
+					<option value="26" >Banking, Finance, Insurance and Securities (BFIS)</option>
+					<option value="2607" >BFIS - Insurance</option>
+					<option value="27" >Information Technology (IT)</option>
+					<option value="2701" >Technology Hardware and Equipment </option>
+					<option value="2702" >Software Services </option>
+					<option value="28" >Consultancy</option>
+					<option value="2802" >Engineering</option>
+					<option value="2803" >Consultancy - Financial </option>
+					<option value="2805" >Human Resource(HR) </option>
+					<option value="2807" >Management, Business and Administration</option>
+					<option value="2810" >Travel and Tourism</option>
+					<option value="2811" >Law and Legal</option>
+					<option value="2812" >Architecture and Urban Development</option>
+					<option value="44" >Oil and Gas</option>
+					<option value="4401" >Oil and Gas Product and Equipment</option>
+					<option value="4402" >Oil and Gas Services</option>
+					<option value="45" >Services</option>
+					<option value="4501" >Services - Entertainment & Media</option>
+					<option value="4502" >Security Services</option>
+					<option value="46" >Education and Training</option>
+					<option value="47" >Infrastructure and Construction</option>
+					<option value="4701" >Roads and Highways</option>
+					<option value="4702" >Bridges and Tunnels</option>
+					<option value="4703" >Infrastructure -  Tunnels</option>
+					<option value="4705" >Airports </option>
+					<option value="55" >Environment and Pollution</option>
+					<option value="56" >Defence</option>
+					<option value="4708" >Building</option>
+					<option value="4503" >Postal and Courier Services</option>
+					<option value="2703" >Smart Cards and Other Access Control System</option>
+					<option value="2704" >GIS/ GPS</option>
+					<option value="03" >Retail</option>
+					<option value="04" >Real Estate</option>
+					<option value="08" >laboratory Equipment and Services </option>
+					<option value="10" >Sports and Leisure</option>
+					<option value="0215" >Furniture</option>
+					<option value="1929" >Renewable Energy</option>
+					<option value="1930" >Non-Renewable Energy</option>
+				
+					</select>
+				
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="keyword">Keyword:</label>
+				<input type="text" name="keyword" id="keyword" data-clear-btn="true">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain" > 
+				<label for="keyword">Industry & Product Code (CPV):</label>
+				<input type="text" name="cpv" id="cpv" data-clear-btn="true">
+				<ul id="suggestions" data-role="listview" data-inset="true"></ul>
+
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain" > 
+				<label for="select-choice-8" class="select">Tenders Posted:</label>
+
+
+				<select data-native-menu="false" class="form-control" name="postingdate" id="postingdate" data-mini="true">
+					<option selected="" value="all">All Time</option>
+					<option value="today">Today</option>
+					<option value="yesterday">Yesterday</option>
+					<option value="last7days">Last 7 Days</option>
+					<option value="last15days">Last 15 Days</option>
+					<option value="last30days">Last 30 Days</option>
+					<option value="thismonth">This Month</option>
+					<option value="lastmonth">Last Month</option>
+				</select>
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain" > 
+				<label for="select-choice-9" class="select">Tenders Closing:</label>
+
+				<select data-native-menu="false" class="form-control" name="closingdate" id="closingdate" data-mini="true">
+					<option selected="" value="all">All Time</option>
+					<option value="today">Today</option>
+					<option value="tomorrow">Tomorrow</option>
+					<option value="next7days">Next 7 Days</option>
+					<option value="next15days">Next 15 Days</option>
+					<option value="thismonth">This Month</option>
+					<option value="nextmonth">Next Month</option>
+				</select>
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				
+					<label for="search_type" class="select">Notice Type:</label>
+					<select name="search_type" id="search_type" data-native-menu="false" data-mini="true">
+						<option value="tenders">Tenders &amp; RFPs</option>
+						<option value="projects" >Projects</option>
+						<option value="news" >Procurement News</option>
+						<option value="ca" >Contract Awards</option>
+
+					</select>
+				
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				
+					<label for="tender_type" class="select">Tender Type:</label>
+					<select name="tender_type" id="tender_type" data-native-menu="false" data-mini="true">
+						<option value="live">Live</option>
+						<option value="archive" >Archive </option>
+
+					</select>
+				
+			</fieldset>			
+			
+			<input type="hidden" name="device_platform" id="lsr_device_platform" value="">
+			<input type="hidden" name="device_uuid" id="lsr_device_uuid" value="">
+			<input type="hidden" name="device_browser" id="lsr_device_browser" value="">
+			
+			<input type="button" data-theme="b" name="submit" id="submit_lsrsearch" value="Search">
+			
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+			<fieldset data-role="fieldcontain" ></fieldset>
+
+		</form>
+		
+			
+	</div><!-- /content -->
+
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-m3">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- ui-icon-arrow-u ui-btn-icon-top -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+
+ </div>
+
+ 
+ <div data-role="page" class="jqm-demos" id="agg_result_beforelogin" data-title="APP">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+		<a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h4 id="message2_beforelogin">Statistics Page</h4>
+
+			<ul data-role="listview" id="agg_list_beforelogin" data-filter="true" data-filter-placeholder="Search"></ul>
+						
+	</div><!-- /content -->
+
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Search</a></li>
+				<li><a href="#" OnClick="Login(); return false;" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
+				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Free Trial</a></li>
+				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Subscribe</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+ 
+  <div data-role="page" class="jqm-demos" id="agg_result_afterlogin" data-title="APP">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+        <a href="#nav-panel-p" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>				
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h4 id="message2_afterlogin"></h4>
+
+			<ul data-role="listview" id="agg_list_afterlogin" data-filter="true" data-filter-placeholder="Search"></ul>
+						
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- ui-icon-arrow-u ui-btn-icon-top -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+ 
+ <div data-role="page" class="jqm-demos" id="search_result_beforelogin" data-title="APP">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>App</h1>
+		<a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	 <center><h1>Search Result</h1></center>
+		<h5 id="message1_beforelogin"></h5>
+			
+			<ul data-role="listview" id="sum_list_beforelogin"></ul>
+			
+			<ul data-role="listview" id="but_list_beforelogin"></ul>
+			
+	</div><!-- /content -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Search</a></li>
+				<li><a href="#" OnClick="Login(); return false;" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
+				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Free Trial</a></li>
+				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Subscribe</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+ 
+ <div data-role="page" class="jqm-demos" id="search_result_afterlogin" data-title="Search Result">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+		<h1>Search Result</h1>
+        <a href="#nav-panel-p1" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h4>Search Result</h4>
+		<h5 id="message1_afterlogin"></h5>
+			
+			<ul data-role="listview" id="sum_list_afterlogin" data-filter="false"></ul>
+			
+			<ul data-role="listview" id="but_list_afterlogin"></ul>
+			
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><span id="priceid"></span>
+				<input type="hidden" name="service_id" id="service_id" value="">
+				<input type="hidden" name="service_name" id="service_name" value="">
+				<input type="hidden" name="chargeable" id="chargeable" value="">
+				<input type="hidden" name="charges" id="charges" value="">				
+				</li>
+
+				<li><a href="#" onclick="BookServices(); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Book</a></li>
+				<!-- -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+ 
+  <div data-role="page" class="jqm-demos" id="search_result_afterlogin_recharge" data-title="Search Result">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+		<h1>Search Result</h1>
+        <a href="#nav-panel-p1" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h4>Search Result</h4>
+		<h5 id="message1_afterlogin"></h5>
+			
+			<ul data-role="listview" id="sum_list_afterlogin_recharge" data-filter="false"></ul>
+			
+			<ul data-role="listview" id="but_list_afterlogin"></ul>
+			
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><span id="priceid_recharge"></span>
+
+				
+				<input type="hidden" name="rechargeamt" id="rechargeamt" value="">
+				
+				
+				</li>
+
+				<li><a href="#" onclick="RechargeFinal(); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Recharge</a></li>
+				<!-- -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+ 
+  <div data-role="page" class="jqm-demos" id="search_result_afterlogin_icb" data-title="ICB/NCB Status">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+		<h1>ICB/NCB Status</h1>
+        <a href="#nav-panel-p1icb" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h4>ICB/NCB Status</h4>
+		<h5 id="message1_afterlogin"></h5>
+			
+			<ul data-role="listview" id="sum_list_afterlogin1" data-filter="false"></ul>
+			
+			<ul data-role="listview" id="but_list_afterlogin1"></ul>
+			
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1icb">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+ 
+  <div data-role="page" class="jqm-demos" id="search_result_afterlogin_brief" data-title="Search Result">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+		<h1>My Briefcase</h1>
+        <a href="#nav-panel-p1brief" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h4>My Briefcase</h4>
+		<h5 id="message1_afterlogin"></h5>
+			
+			<ul data-role="listview" id="sum_list_afterlogin2" data-filter="false"></ul>
+			
+			<ul data-role="listview" id="but_list_afterlogin2"></ul>
+			
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1brief">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+ </div>
+ 
+ <div data-role="page" class="jqm-demos" id="details" data-title="Details">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>Details</h1>
+        <a href="#nav-panel-p2" data-icon="bars" data-iconpos="notext">Menu</a>
+		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<!--<h4>Details Page</h4>-->
+
+		<ul data-role="listview" id="det_list"></ul>
+
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p2">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+	
+	
+ </div>
+ 
+<div data-role="page" class="jqm-demos" id="renewdiaglog" data-title="Renew">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>Renew</h1>	
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+		<form id="rform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="name">Name:</label>
+				<input type="text" name="name" id="renew_name" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="email_id">E-mail ID:</label>
+				<input type="text" name="email_id" id="renew_email_id" class="required" minlength="4">
+				<input type="hidden" name="username" id="renew_username" minlength="4">
+			</fieldset>
+
+			<input type="button" data-theme="b" name="submit" id="renew_login" value="Submit">
+
+		</form>
+		
+		<a href="index.html" data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-a">Close</a>
+	</div><!-- /content -->
+ </div>
+ 
+ <div data-role="page" class="jqm-demos" id="confirmdialog" data-title="Confirm Bidding">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>Confirm Bidding</h1>	
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+		<form id="confirm_form" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="name">Name:</label>
+				<input type="text" name="name" id="confirm_name" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="email_id">E-mail ID:</label>
+				<input type="text" name="email_id" id="confirm_email_id" class="required" minlength="4">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="tel">Contact No.</label>
+				<input type="text" name="tel" id="confirm_tel" class="required" minlength="4">
+				<input type="hidden" name="username" id="confirm_username" minlength="4">
+				<input type="hidden" name="tiref" id="confirm_tiref" minlength="4">
+			</fieldset>
+			<input type="button" data-theme="b" name="submit" id="confirm_btn" value="Submit">
+
+		</form>
+		
+		<a href="index.html" data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-a">Close</a>
+	</div><!-- /content -->
+ </div>
+ 
+ <div data-role="page" class="jqm-demos" id="emaildialog" data-title="E-mail Tender">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+        <h1>E-mail Tender</h1>	
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+		<form id="emailteform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="name">Name:</label>
+				<input type="text" name="name" id="emailten_name" class="required" minlength="4">
+			</fieldset>
+
+			<fieldset data-role="fieldcontain"> 
+				<label for="email_id">E-mail ID:</label>
+				<input type="text" name="email_id" id="emailten_email_id" class="required" minlength="4">
+			</fieldset>
+			
+			<fieldset data-role="fieldcontain"> 
+				<label for="tel">Contact No.</label>
+				<input type="text" name="tel" id="emailten_tel" class="required" minlength="4">
+				<input type="hidden" name="username" id="emailten_username" minlength="4">
+				<input type="hidden" name="tiref" id="emailten_tiref" minlength="4">
+			</fieldset>
+
+			<input type="button" data-theme="b" name="submit" id="email_btn" value="Submit">
+
+		</form>
+		
+		<a href="index.html" data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-a">Close</a>
+	</div><!-- /content -->
+ </div>
+ 
+
+
+</body>
+</html
