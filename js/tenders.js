@@ -1,5 +1,5 @@
 //var serviceURL = "http://happ.phpzeal.com/";
-var serviceURL = "http://localhost/h_app/services/";
+//var serviceURL = "http://localhost/h_app/services/";
 
 $(document).on('pageinit', '#search', function()
 {  
