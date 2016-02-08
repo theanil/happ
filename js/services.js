@@ -450,7 +450,7 @@ function BookServices()
 		//$.mobile.showPageLoadingMsg(true); // This will show ajax spinner
 		//$.mobile.loading( "show" );
 		$.mobile.loading( 'show', {
-			text: 'Searching ...',
+			text: 'Loading Services ...',
 			textVisible: true,
 			theme: 'b',
 			html: ""
