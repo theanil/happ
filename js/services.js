@@ -1,9 +1,6 @@
 var serviceURL = "http://happ.phpzeal.com/services/";
 //var serviceURL = "http://localhost/h_app/services/";
 
-var serviceURL2 = "http://happ.phpzeal.com/";
-//var serviceURL2 = "http://localhost/h_app/";
-
 var version = "1.0";
 localStorage.setItem("session_version", version);
 
@@ -603,7 +600,7 @@ function ListTicket(last)
 					datec = result.data.service[0].datec;
 					comments = result.data.service[0].comments;
 
-					ticket_url = serviceURL2 + 'genqr?ticket_no=' + ticket_no;
+					ticket_url = serviceURL + 'genqr?ticket_no=' + ticket_no;
 					//ticket_url = '';
 					img = '<img src="' + ticket_url + '" >';
 					console.log(service_name);
@@ -631,7 +628,7 @@ function ListTicket(last)
 					comments = result.data.service[i].comments;
 					datec = result.data.service[i].datec;
 					
-					ticket_url = serviceURL2 + 'genqr?ticket_no=' + ticket_no;
+					ticket_url = serviceURL + 'genqr?ticket_no=' + ticket_no;
 					//ticket_url = '';
 					img = '<img src="' + ticket_url + '" >';
 					console.log(service_name);
@@ -673,7 +670,7 @@ function TicketID(ticket_no, service_name,datec,s_validity )
 	//chargeable = $("#chargeable").val();
 	//service_name = $("#service_name").val();
 	
-		ticket_url = serviceURL2 + 'genqr?ticket_no=' + ticket_no;
+		ticket_url = serviceURL + 'genqr?ticket_no=' + ticket_no;
 		//ticket_url = '';
 		img = '<img src="' + ticket_url + '" >';
 		console.log(service_name);
