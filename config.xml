@@ -133,7 +133,12 @@
 	<allow-navigation href="http://*/*" />
 	<allow-intent href="*" />
 	
-	<platform name="ios|winphone|wp8|android" />
+<gap:platform name="ios" />
+<gap:platform name="android" />
+<gap:platform name="webos" />
+<gap:platform name="symbian" />
+<gap:platform name="blackberry" />
+<gap:platform name="winphone" />
 	
     <platform name="android">
         <allow-intent href="market:*" />
@@ -142,6 +147,7 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
+	
 
 
 </widget>
