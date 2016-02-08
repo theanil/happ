@@ -733,7 +733,6 @@ function errorHandler (error) {
     <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
         <h1>App</h1>
         <a href="#nav-panel-m2" data-icon="bars" data-iconpos="notext">Menu</a>
-		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
 		
     </div><!-- /header -->
 
@@ -743,10 +742,10 @@ function errorHandler (error) {
 		
 		<!--<img src="tenderlogo.png">-->
 		<ul data-role="listview" data-inset="true" id="welcome_message"></ul>		
-		
-		<div data-role="listview">
+		<p>
+		<div data-role="listview" data-inset="true" >
 
-			<ul data-role="listview">
+			<ul data-role="listview" data-inset="true" >
 				  <li><a href="#" onclick="ListServices(); return false;">Book Services</a></li>
 				  <li><a href="#" onclick="ListTicket(0); return false;">My Ticket</a></li>
 				  <li><a href="#" onclick="Recharge(); return false;">Recharge</a></li>
@@ -767,9 +766,11 @@ function errorHandler (error) {
 
 		<ul data-role="listview">
 			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<!--
 			<li><a href="#contact">Contact</a></li>
 			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
 			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			-->
 			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
 			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
 			<!--
@@ -1331,7 +1332,7 @@ function errorHandler (error) {
 
 			<fieldset data-role="fieldcontain"> 
 				<label for="username">Membership No:</label>
-				<input type="text" name="username" id="username" minlength="4" maxlength="20">
+				<input type="text" name="username" id="username" minlength="4" maxlength="20" required>
 			</fieldset>
 			
 			<input type="button" data-theme="b" name="submit" id="submit_login" value="Submit">
@@ -1350,18 +1351,18 @@ function errorHandler (error) {
 
     <div role="main" class="ui-content jqm-content jqm-fullwidth">
 
-    	<center><h1>Login1</h1></center>
+    	<center><h1>Login</h1></center>
 
 		<form id="lform" class="ui-body ui-body-a ui-corner-all" data-ajax="false">
 
 			<fieldset data-role="fieldcontain"> 
 				<label for="username">Membership No:</label>
-				<input type="text" name="username" id="username2" minlength="4" maxlength="20">
+				<input type="text" name="username" id="username2" minlength="4" maxlength="20" required>
 			</fieldset>
 
 			<fieldset data-role="fieldcontain" style="display:none1;" id="pin_id"> 
 				<label for="password">OTP No:</label>
-				<input type="text" name="password" id="password" minlength="4" maxlength="5">
+				<input type="number" name="password" id="password" minlength="4" maxlength="5" required>
 			</fieldset>
 			
 			<input type="button" data-theme="b" name="submit" id="submit_login2" value="Submit">
@@ -3183,20 +3184,19 @@ to Tendersinfo.com and you accept To Comply With The
 	
  </div>
  
- <div data-role="page" class="jqm-demos" id="search_result_afterlogin" data-title="Search Result">
+ <div data-role="page" class="jqm-demos" id="search_result_afterlogin_book" data-title="Search Result">
 
     <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
-		<h1>Search Result</h1>
+		<h1>Book Services</h1>
         <a href="#nav-panel-p1" data-icon="bars" data-iconpos="notext">Menu</a>
-		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
     </div><!-- /header -->
 
     <div role="main" class="ui-content jqm-content jqm-fullwidth">
 
-    	<h4>Search Result</h4>
+    	<h4>Book Services</h4>
 		<h5 id="message1_afterlogin"></h5>
 			
-			<ul data-role="listview" id="sum_list_afterlogin" data-filter="false"></ul>
+			<ul data-role="listview" id="sum_list_afterlogin_book" data-filter="false"></ul>
 			
 			<ul data-role="listview" id="but_list_afterlogin"></ul>
 			
@@ -3206,10 +3206,12 @@ to Tendersinfo.com and you accept To Comply With The
 
 		<ul data-role="listview">
 			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<!--
 			<li><a href="#contact">Contact Tendersinfo</a></li>
 			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
 			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
 			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			-->
 			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
 			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
 			<!--
@@ -3237,17 +3239,56 @@ to Tendersinfo.com and you accept To Comply With The
 	
  </div>
  
-  <div data-role="page" class="jqm-demos" id="search_result_afterlogin_recharge" data-title="Search Result">
+  <div data-role="page" class="jqm-demos" id="search_result_afterlogin_list" data-title="Search Result">
 
     <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
-		<h1>Search Result</h1>
-        <a href="#nav-panel-p1" data-icon="bars" data-iconpos="notext">Menu</a>
-		<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>		
+		<h1>My Ticket</h1>
+        <a href="#nav-panel-p1" OnClick="ShowHome(); return false;" data-icon="bars" data-iconpos="notext">Menu</a>
     </div><!-- /header -->
 
     <div role="main" class="ui-content jqm-content jqm-fullwidth">
 
-    	<h4>Search Result</h4>
+    	<h4>My Ticket</h4>
+		<h5 id="message1_afterlogin"></h5>
+			
+			<ul data-role="listview" id="sum_list_afterlogin_list" data-filter="false"></ul>
+			
+			<ul data-role="listview" id="but_list_afterlogin"></ul>
+			
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<!--
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			-->
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+	
+ </div>
+ 
+  <div data-role="page" class="jqm-demos" id="search_result_afterlogin_recharge" data-title="Search Result">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+		<h1>Recharge</h1>
+        <a href="#nav-panel-p1" data-icon="bars" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h4>Select Amount</h4>
 		<h5 id="message1_afterlogin"></h5>
 			
 			<ul data-role="listview" id="sum_list_afterlogin_recharge" data-filter="false"></ul>
@@ -3260,10 +3301,12 @@ to Tendersinfo.com and you accept To Comply With The
 
 		<ul data-role="listview">
 			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<!--
 			<li><a href="#contact">Contact Tendersinfo</a></li>
 			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
 			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
 			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			-->
 			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
 			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
 			<!--
@@ -3289,6 +3332,46 @@ to Tendersinfo.com and you accept To Comply With The
 			</ul>
 		</div><!-- /navbar -->
 	</div><!-- /footer -->
+	
+ </div>
+ 
+   <div data-role="page" class="jqm-demos" id="search_result_afterlogin_thanks" data-title="Search Result">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+		<h1>Recharge</h1>
+        <a href="#nav-panel-p1" data-icon="bars" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h4>Recharge Complete</h4>
+		<h5 id="message1_afterlogin"></h5>
+			
+			<ul data-role="listview" id="sum_list_afterlogin_thanks" data-filter="false"></ul>
+			
+			<ul data-role="listview" id="but_list_afterlogin"></ul>
+			
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<!--
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			-->
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
 	
  </div>
  

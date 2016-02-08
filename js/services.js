@@ -115,7 +115,7 @@ $(document).on('pageinit', '#beforelogin', function()
 								//alert(result.message);
 								$.mobile.changePage( "#login",null, true, true);
 								//return false;
-								alert(username);
+								//alert(username);
 								$('#username2').val(username);
 								showMessage(result.message,null,result.message,'OK');
 								
@@ -194,9 +194,8 @@ $(document).on('pageinit', '#login', function()
 					
 					//alert(serviceURL);
 					url = serviceURL + 'login/1';
-					alert(url);//return false;
+					//alert(url);//return false;
 					
-			
 					$.ajax({url: url,
 						data: {membership_id: username, otp: password, device_id: device_id, device_platform: device_platform, device_browser: device_browser, ver: session_version},
 						type: 'post',                   
@@ -218,7 +217,7 @@ $(document).on('pageinit', '#login', function()
 								$.mobile.loading( "hide" );
 								//alert('ok');
 								//alert(result.status);
-								alert(result.message);
+								//alert(result.message);
 								//alert(result.data.name);
 								//alert(result.data.email);
 								//alert(result.data.mobileno);
@@ -358,8 +357,8 @@ function ListServices()
 			//alert(result[0][0].site_tender_id);
 			//alert(localStorage.session_id_local);
 			
-			$.mobile.changePage( "#search_result_afterlogin",null, true, true);
-			$("#sum_list_afterlogin").html('');
+			$.mobile.changePage( "#search_result_afterlogin_book",null, true, true);
+			$("#sum_list_afterlogin_book").html('');
 			
 				for(i=0; i<Object.keys(result.data.service).length; i++)
 				{
@@ -377,12 +376,12 @@ function ListServices()
 					console.log(charges);
 					
 					console.log("<li><a href=\"#\" onclick=\"SetBookID(" + service_id + ",'" + service_name + "','" + chargeable + "'," + charges + ");return false;\">" + img + " " + service_name + "<br> Rs " + charges  + "</a></li>");
-					$("#sum_list_afterlogin").append("<li><a href=\"#\" onclick=\"SetBookID(" + service_id + ",'" + service_name + "','" + chargeable + "'," + charges + ");return false;\">" + img + " " + service_name + "<br> Rs " + charges  + "</a></li>").listview("refresh");
-					//$("#sum_list_afterlogin").append("<li>" +  img + " " + service_name + "<br> Rs " + charges + "</li>").listview("refresh");
+					$("#sum_list_afterlogin_book").append("<li><a href=\"#\" onclick=\"SetBookID(" + service_id + ",'" + service_name + "','" + chargeable + "'," + charges + ");return false;\">" + img + " " + service_name + "<br> Rs " + charges  + "</a></li>").listview("refresh");
+					//$("#sum_list_afterlogin_book").append("<li>" +  img + " " + service_name + "<br> Rs " + charges + "</li>").listview("refresh");
 										
 					//console.log(result[0][i].Location);
 					
-					//$("#sum_list_afterlogin").append("<li style='padding-top: 10px; padding-bottom: 10px'></li>").listview("refresh");
+					//$("#sum_list_afterlogin_book").append("<li style='padding-top: 10px; padding-bottom: 10px'></li>").listview("refresh");
 				}
 
 		} else 
@@ -427,7 +426,8 @@ function BookServices()
 	
 	if(charges == '')
 	{
-		alert('Please select service before clicking on book');
+		//alert('Please select service before clicking on book');
+		showMessage('Please select service before clicking on book',null,'Error','OK');
 		return false;
 	}else
 	{
@@ -467,7 +467,7 @@ function BookServices()
 		{		
 			$.mobile.loading( "hide" );	
 			alert(result.message);
-			alert(result.data.balance);
+			//alert(result.data.balance);
 			console.log(result.message);
 			localStorage.setItem("session_id_balance", result.data.balance);
 			//alert(Object.keys(result.data.service).length);
@@ -552,7 +552,7 @@ function ListTicket(last)
 		//$.mobile.showPageLoadingMsg(true); // This will show ajax spinner
 		//$.mobile.loading( "show" );
 		$.mobile.loading( 'show', {
-			text: 'Searching ...',
+			text: 'Listing Ticket ...',
 			textVisible: true,
 			theme: 'b',
 			html: ""
@@ -568,7 +568,7 @@ function ListTicket(last)
 		if(result.status == 'success') 
 		{		
 			$.mobile.loading( "hide" );	
-			alert(result.message);
+			//alert(result.message);
 			//return false;
 			//alert(result.data.balance);
 			console.log(result.message);
@@ -584,8 +584,8 @@ function ListTicket(last)
 			//alert(result[0][0].site_tender_id);
 			//alert(localStorage.session_id_local);
 			
-			$.mobile.changePage( "#search_result_afterlogin",null, true, true);
-			$("#sum_list_afterlogin").html('');
+			$.mobile.changePage( "#search_result_afterlogin_list",null, true, true);
+			$("#sum_list_afterlogin_list").html('');
 			
 			if(last == '1')
 			{
@@ -612,7 +612,7 @@ function ListTicket(last)
 					//alert('generating qr code');
 					//TicketID(ticket_no);
 					
-					$("#sum_list_afterlogin").append("<li>" +  service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</li>").listview("refresh");
+					$("#sum_list_afterlogin_list").append("<li>" +  service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</li>").listview("refresh");
 			}
 			else
 			{
@@ -636,12 +636,12 @@ function ListTicket(last)
 					//service_name,datec,s_validity
 					console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>");
 					
-					$("#sum_list_afterlogin").append("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
-					//$("#sum_list_afterlogin").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
+					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
+					//$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 										
 					//console.log(result[0][i].Location);
 					
-					//$("#sum_list_afterlogin").append("<li style='padding-top: 10px; padding-bottom: 10px'></li>").listview("refresh");
+					//$("#sum_list_afterlogin_list").append("<li style='padding-top: 10px; padding-bottom: 10px'></li>").listview("refresh");
 				}
 			}
 
@@ -682,10 +682,10 @@ function TicketID(ticket_no, service_name,datec,s_validity )
 		//alert('generating qr code');
 		//TicketID(ticket_no);
 		
-		$.mobile.changePage( "#search_result_afterlogin",null, true, true);
-		$("#sum_list_afterlogin").html('');
+		$.mobile.changePage( "#search_result_afterlogin_list",null, true, true);
+		$("#sum_list_afterlogin_list").html('');
 			
-		$("#sum_list_afterlogin").append("<li>" +  service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</li>").listview("refresh");
+		$("#sum_list_afterlogin_list").append("<li>" +  service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</li>").listview("refresh");
 
 
 }
@@ -716,7 +716,8 @@ function RecharegAmt(charges)
 		$("#priceid_recharge").html('Rs ' + charges);
 
 		$("#rechargeamt").val(charges);
-		alert("recharge with " + charges);
+		//alert("recharge with " + charges);
+		showMessage("recharge with " + charges,null,'App','OK');
 }
 
 function RechargeFinal()
@@ -728,11 +729,13 @@ function RechargeFinal()
 	
 	if(rechargeamt == '')
 	{
-		alert('Please select amount before clicking on recharge');
+		//alert('Please select amount before clicking on recharge');
+		showMessage("Please select amount before clicking on recharge",null,'App','OK');
 		return false;
 	}else
 	{
 		alert('Recharging ');
+		//showMessage("Recharging Wallet ",null,'App','OK');
 	}
 	//return false;
 	//http://localhost/h_app/services/add_wallet/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d&amt=100
@@ -751,7 +754,7 @@ function RechargeFinal()
 		//$.mobile.showPageLoadingMsg(true); // This will show ajax spinner
 		//$.mobile.loading( "show" );
 		$.mobile.loading( 'show', {
-			text: 'Searching ...',
+			text: 'Recharging ...',
 			textVisible: true,
 			theme: 'b',
 			html: ""
@@ -767,28 +770,21 @@ function RechargeFinal()
 		if(result.status == 'success') 
 		{		
 			$.mobile.loading( "hide" );	
-			alert(result.message);
-			alert(result.data.balance);
+			//alert(result.message);
+			//alert(result.data.balance);
+			//showMessage(result.message,null,'App','OK');
+			//showMessage("New Balance: " + result.data.balance,null,'App','OK');
 			console.log(result.message);
 			localStorage.setItem("session_id_balance", result.data.balance);
 			//alert(Object.keys(result.data.service).length);
 			//console.log(Object.keys(result.data.service));
-			//return false;
-			//alert(result.S_ID);
-			//alert(result.Offset);
-			//alert(result.Total);
-			//alert(newtotal);
-			//return false;
-			
-			//ListTicket(1);
-	
 			//alert(result[0][0].site_tender_id);
 			//alert(localStorage.session_id_local);
 			
-			$.mobile.changePage( "#search_result_afterlogin",null, true, true);
-			$("#sum_list_afterlogin").html('');
-			
-
+			$.mobile.changePage( "#search_result_afterlogin_thanks",null, true, true);
+			$("#sum_list_afterlogin_thanks").html('');
+			$("#sum_list_afterlogin_thanks").append("<li>Recharge Done for " + rechargeamt + "</li>").listview("refresh");
+			$("#sum_list_afterlogin_thanks").append("<li>Current Balance " + result.data.balance + "</li>").listview("refresh");
 
 		} else 
 		{
@@ -804,7 +800,8 @@ function RechargeFinal()
 		$.mobile.loading( "hide" );	
 		showMessage('Please check your data connection!',null,'Error','OK');
 	}
-});        
+});        	
+
 }
 
 $(document).on('pageinit', '#freetrial', function()
