@@ -26,7 +26,7 @@ function LogOut()
 	$.mobile.loading( 'show', {
 		text: 'Logging Out ...',
 		textVisible: true,
-		theme: 'b',
+		theme: 'a',
 		html: ""
 	});	
 	
@@ -43,7 +43,11 @@ function ShowHome()
 	}else
 	{
 		//alert('test');
-		$.mobile.changePage( "#main",null, true, true);	  
+		$.mobile.changePage( "#main",null, true, true);	
+		$("#welcome_message").html('');
+		$("#welcome_message").append("<li>Welcome " + localStorage.session_name + "</li>").listview("refresh");
+		//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
+		$("#welcome_message").append("<li>Balance: Rs " + localStorage.session_id_balance + "</li>").listview("refresh");				
 	}
 }
 
@@ -83,7 +87,7 @@ $(document).on('pageinit', '#beforelogin', function()
 					$.mobile.loading( 'show', {
 						text: 'Checking Login ...',
 						textVisible: true,
-						theme: 'b',
+						theme: 'a',
 						html: ""
 					});	
 					
@@ -188,7 +192,7 @@ $(document).on('pageinit', '#login', function()
 					$.mobile.loading( 'show', {
 						text: 'Checking Login ...',
 						textVisible: true,
-						theme: 'b',
+						theme: 'a',
 						html: ""
 					});	
 					
@@ -265,7 +269,7 @@ $(document).on('pageinit', '#login', function()
 								$("#welcome_message").html('');
 								$("#welcome_message").append("<li>Welcome " + result.data.name + "</li>").listview("refresh");
 								//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
-								$("#welcome_message").append("<li>Balance " + result.data.balance + "</li>").listview("refresh");								
+								$("#welcome_message").append("<li>Balance: Rs" + result.data.balance + "</li>").listview("refresh");								
 								if(diff2>0 && diff2<=30)
 								{
 									username = localStorage.session_id_username;
@@ -328,9 +332,9 @@ function ListServices()
 		//$.mobile.showPageLoadingMsg(true); // This will show ajax spinner
 		//$.mobile.loading( "show" );
 		$.mobile.loading( 'show', {
-			text: 'Searching ...',
+			text: 'Getting Service List ...',
 			textVisible: true,
-			theme: 'b',
+			theme: 'a',
 			html: ""
 		});
 			
@@ -453,7 +457,7 @@ function BookServices()
 		$.mobile.loading( 'show', {
 			text: 'Loading Services ...',
 			textVisible: true,
-			theme: 'b',
+			theme: 'a',
 			html: ""
 		});
 			
@@ -555,7 +559,7 @@ function ListTicket(last)
 		$.mobile.loading( 'show', {
 			text: 'Listing Ticket ...',
 			textVisible: true,
-			theme: 'b',
+			theme: 'a',
 			html: ""
 		});
 			
@@ -613,7 +617,7 @@ function ListTicket(last)
 					//alert('generating qr code');
 					//TicketID(ticket_no);
 					
-					$("#sum_list_afterlogin_list").append("<li>" +  service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</li>").listview("refresh");
+					$("#sum_list_afterlogin_list").append("<li>" +  service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</li>").listview("refresh");
 			}
 			else
 			{
@@ -637,7 +641,7 @@ function ListTicket(last)
 					//service_name,datec,s_validity
 					console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>");
 					
-					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
+					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
 					//$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 										
 					//console.log(result[0][i].Location);
@@ -686,7 +690,7 @@ function TicketID(ticket_no, service_name,datec,s_validity )
 		$.mobile.changePage( "#search_result_afterlogin_list",null, true, true);
 		$("#sum_list_afterlogin_list").html('');
 			
-		$("#sum_list_afterlogin_list").append("<li>" +  service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</li>").listview("refresh");
+		$("#sum_list_afterlogin_list").append("<li><center>Service: " + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</center><li>").listview("refresh");
 
 
 }
@@ -718,7 +722,7 @@ function RecharegAmt(charges)
 
 		$("#rechargeamt").val(charges);
 		//alert("recharge with " + charges);
-		showMessage("recharge with " + charges,null,'App','OK');
+		showMessage("Recharging with " + charges,null,'App','OK');
 }
 
 function RechargeFinal()
@@ -757,7 +761,7 @@ function RechargeFinal()
 		$.mobile.loading( 'show', {
 			text: 'Recharging ...',
 			textVisible: true,
-			theme: 'b',
+			theme: 'a',
 			html: ""
 		});
 			
@@ -784,8 +788,8 @@ function RechargeFinal()
 			
 			$.mobile.changePage( "#search_result_afterlogin_thanks",null, true, true);
 			$("#sum_list_afterlogin_thanks").html('');
-			$("#sum_list_afterlogin_thanks").append("<li>Recharge Done for " + rechargeamt + "</li>").listview("refresh");
-			$("#sum_list_afterlogin_thanks").append("<li>Current Balance " + result.data.balance + "</li>").listview("refresh");
+			$("#sum_list_afterlogin_thanks").append("<li>Recharge Done for Rs " + rechargeamt + "</li>").listview("refresh");
+			$("#sum_list_afterlogin_thanks").append("<li>Current Balance: Rs " + result.data.balance + "</li>").listview("refresh");
 
 		} else 
 		{
@@ -979,7 +983,7 @@ function GetProfile()
 			$.mobile.loading( 'show', {
 				text: 'Getting Profile ...',
 				textVisible: true,
-				theme: 'b',
+				theme: 'a',
 				html: ""
 			});
 				
@@ -1408,7 +1412,7 @@ $(document).on('pageinit', '#renewdiaglog', function()
 					$.mobile.loading( 'show', {
 						text: 'Sending Request  ...',
 						textVisible: true,
-						theme: 'b',
+						theme: 'a',
 						html: ""
 					});	
 			
