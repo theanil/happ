@@ -263,8 +263,9 @@ $(document).on('pageinit', '#login', function()
 
 								$.mobile.changePage( "#main",null, true, true);
 								$("#welcome_message").html('');
-								$("#welcome_message").append("<li>Welcome - " + result.data.name + "</li>").listview("refresh");
-								$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
+								$("#welcome_message").append("<li>Welcome " + result.data.name + "</li>").listview("refresh");
+								//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
+								$("#welcome_message").append("<li>Balance " + result.data.balance + "</li>").listview("refresh");								
 								if(diff2>0 && diff2<=30)
 								{
 									username = localStorage.session_id_username;
