@@ -54,7 +54,6 @@
 			if( page == 'beforelogin' || page == 'main')
 			{
 				// call this to get a new token each time. don't call it to reuse existing token.
-				pushNotification.unregister(successHandler, errorHandler);
 				e.preventDefault();
 				navigator.app.exitApp();
 				//navigator.app.backHistory();
@@ -64,27 +63,6 @@
 				navigator.app.backHistory();
 			}
 		}, false);				
-
-	try 
-	{ 
-		pushNotification = window.plugins.pushNotification;
-		//$("#app-status-ul").append('<li>registering ' + device.platform + '</li>').listview("refresh");
-		//$("#app-status-ul2").append('<li>registering ' + device.platform + '</li>').listview("refresh");
-		
-		if (device.platform == 'android' || device.platform == 'Android' || device.platform == 'amazon-fireos' ) 
-		{
-			pushNotification.register(successHandler, errorHandler, {"senderID":"802746433745","ecb":"onNotification"});		// required!
-		} else 
-		{
-			pushNotification.register(tokenHandler, errorHandler, {"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});	// required!
-		}
-	}
-	catch(err) 
-	{ 
-		txt="There was an error on this page.\n\n"; 
-		txt+="Error description: " + err.message + "\n\n"; 
-		alert(txt); 
-	} 
 				
 	  localStorage.setItem("device_platform", device.platform);
 	  localStorage.setItem("device_uuid", device.uuid);
@@ -99,136 +77,6 @@
 	 //ShowHome();
  }	
 
- // handle APNS notifications for iOS
-function onNotificationAPN(e) {
-	if (e.alert) {
-		 $("#app-status-ul").append('<li>push-notification: ' + e.alert + '</li>');
-		 // showing an alert also requires the org.apache.cordova.dialogs plugin
-		 navigator.notification.alert(e.alert);
-	}
-		
-	if (e.sound) {
-		// playing a sound also requires the org.apache.cordova.media plugin
-		var snd = new Media(e.sound);
-		snd.play();
-	}
-	
-	if (e.badge) {
-		pushNotification.setApplicationIconBadgeNumber(successHandler, e.badge);
-	}
-}
-
-// handle GCM notifications for Android
-function onNotification(e) 
-{
-	if(e.event != 'registered')
-	{
-		//$("#app-status-ul").append('<li>Recieved: ' + e.event + '</li>').listview("refresh");
-		//$("#app-status-ul2").append('<li>Recieved: ' + e.event + '</li>').listview("refresh");
-	}
-	
-	switch( e.event )
-	{
-		case 'registered':
-		if ( e.regid.length > 0 )
-		{
-			//$("#app-status-ul").append("<li>Registered to Tendersinfo Server</li>").listview("refresh");
-			//$("#app-status-ul2").append("<li>Registered to Server</li>").listview("refresh");
-			//$("#app-status-ul2").append('<li>REGISTERED -> REGID: ' + e.regid + "</li>").listview("refresh");
-			
-			//$("#app-status-ul").append('<li>REGISTERED -> REGID: ' + e.regid + "</li>");
-			// Your GCM push server needs to know the regID before it can push to this device
-			// here is where you might want to send it the regID for later use.
-			
-			sendID(e.regid);
-			console.log("regID = " + e.regid);
-		}
-		break;
-		
-		case 'message':
-			// if this flag is set, this notification happened while we were in the foreground.
-			// you might want to play a sound to get the user's attention, throw up a dialog, etc.
-			if (e.foreground)
-			{
-				//$("#app-status-ul").append('<li>--INLINE NOTIFICATION--' + '</li>').listview("refresh");
-				//$("#app-status-ul2").append('<li>--INLINE NOTIFICATION--' + '</li>').listview("refresh");
-				  
-				// on Android soundname is outside the payload. 
-				// On Amazon FireOS all custom attributes are contained within payload
-				var soundfile = e.soundname || e.payload.sound;
-				// if the notification contains a soundname, play it.
-				// playing a sound also requires the org.apache.cordova.media plugin
-				var my_media = new Media("/android_asset/www/"+ soundfile);
-
-				my_media.play();
-			}
-			else
-			{	// otherwise we were launched because the user touched a notification in the notification tray.
-				if (e.coldstart)
-				{
-					//$("#app-status-ul").append('<li>--COLDSTART NOTIFICATION--' + '</li>').listview("refresh");
-					//$("#app-status-ul2").append('<li>--COLDSTART NOTIFICATION--' + '</li>').listview("refresh");
-				}
-				else
-				{
-					//$("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>').listview("refresh");
-					//$("#app-status-ul2").append('<li>--BACKGROUND NOTIFICATION--' + '</li>').listview("refresh");
-				}
-			}
-				
-			
-			//$("#app-status-ul2").append('<li>' + e.payload.nolink + '</li>').listview("refresh");
-			if(e.payload.image != undefined)
-			{
-				//$("#app-status-ul2").append('<li><img src="' + e.payload.image + '"></li>').listview("refresh");
-			}else
-			{
-				//$("#app-status-ul2").append('<li>' + e.payload.message + '</li>').listview("refresh");
-			}
-			
-			//$("#app-status-ul").append('<li>Message: ' + e.payload.message + '</li>').listview("refresh");
-			//$("#app-status-ul").append('<li>' + e.payload.message + '</li>').listview("refresh");
-			
-			//showMessage(e.payload.message,null,'Tendersinfo','OK');
-			
-			//$("#app-status-ul").append("<li><a href=\"#\" onclick=\"ShowDetail(" + e.payload.ref_id + ");return false;\"><p class=\"wrap\">" + e.payload.message + "</p></a></li>").listview("refresh");
-			
-			$("#app-status-ul").append("<li><p class=\"wrap\">" + e.payload.message + "</p></li>").listview("refresh");
-			
-			//android only
-			//$("#app-status-ul").append('<li>MESSAGE -> MSGCNT: ' + e.payload.msgcnt + '</li>').listview("refresh");
-			//amazon-fireos only
-			//$("#app-status-ul").append('<li>Message Timestamp: ' + e.payload.timeStamp + '</li>').listview("refresh");
-		break;
-		
-		case 'error':
-			$("#app-status-ul").append('<li>ERROR -> MSG:' + e.msg + '</li>').listview("refresh");
-			//$("#app-status-ul2").append('<li>ERROR -> MSG:' + e.msg + '</li>').listview("refresh");
-		break;
-		
-		default:
-			$("#app-status-ul").append('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>').listview("refresh");
-			//$("#app-status-ul2").append('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>').listview("refresh");
-		break;
-	}
-}
-
-function tokenHandler (result) {
-	$("#app-status-ul").append('<li>token: '+ result +'</li>').listview("refresh");
-	//$("#app-status-ul2").append('<li>token: '+ result +'</li>').listview("refresh");
-	// Your iOS push server needs to know the token before it can push to this device
-	// here is where you might want to send it the token for later use.
-}
-
-function successHandler (result) {
-	//$("#app-status-ul").append('<li>success: '+ result +'</li>').listview("refresh");
-	//$("#app-status-ul2").append('<li>success: '+ result +'</li>').listview("refresh");
-}
-
-function errorHandler (error) {
-	//$("#app-status-ul").append('<li>error: '+ error +'</li>').listview("refresh");
-	//$("#app-status-ul2").append('<li>error: '+ error +'</li>').listview("refresh");
-}
 </script>
 
 	<script>
@@ -346,245 +194,13 @@ function errorHandler (error) {
 		{
 			username = localStorage.session_id_username;
 			//alert('<li><a href="#" onclick="Renew(' + "'" + username + "'" + ');return false;">' + "Renew Subscription" +'</a> </li>');
-			$("#welcome_message").append('<li><a href="#" onclick="Renew(' + "'" + username + "'" + ');return false;">' + "Renew Subscription" +'</a> </li>').listview("refresh");
+			//$("#welcome_message").append('<li><a href="#" onclick="Renew(' + "'" + username + "'" + ');return false;">' + "Renew Subscription" +'</a> </li>').listview("refresh");
 		}	
 		
 	});
 	</script>	
 	
-	<script>
-	
-   $.mobile.document
-    // "filter-menu-menu" is the ID generated for the listview when it is created
-    // by the custom selectmenu plugin. Upon creation of the listview widget we
-    // want to prepend an input field to the list to be used for a filter.
-    .on( "listviewcreate", "#f_regcountry-menu", function( e ) {
-        var input,
-            listbox = $( "#f_regcountry-listbox" ),
-            form = listbox.jqmData( "filter-form" ),
-            listview = $( e.target );
-        // We store the generated form in a variable attached to the popup so we
-        // avoid creating a second form/input field when the listview is
-        // destroyed/rebuilt during a refresh.
-        if ( !form ) {
-            input = $( "<input data-type='search'></input>" );
-            form = $( "<form></form>" ).append( input );
-            input.textinput();
-            $( "#f_regcountry-listbox" )
-            .prepend( form )
-            .jqmData( "filter-form", form );
-        }
-        // Instantiate a filterable widget on the newly created listview and
-        // indicate that the generated input is to be used for the filtering.
-        listview.filterable({ input: input });
-    })
-    // The custom select list may show up as either a popup or a dialog,
-    // depending how much vertical room there is on the screen. If it shows up
-    // as a dialog, then the form containing the filter input field must be
-    // transferred to the dialog so that the user can continue to use it for
-    // filtering list items.
-    //
-    // After the dialog is closed, the form containing the filter input is
-    // transferred back into the popup.
-    .on( "pagebeforeshow pagehide", "#f_regcountry-dialog", function( e ) {
-        var form = $( "#f_regcountry-listbox" ).jqmData( "filter-form" ),
-            placeInDialog = ( e.type === "pagebeforeshow" ),
-            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#f_regcountry-listbox" );
-        form
-        .find( "input" )
-        // Turn off the "inset" option when the filter input is inside a dialog
-        // and turn it back on when it is placed back inside the popup, because
-        // it looks better that way.
-        .textinput( "option", "inset", !placeInDialog )
-        .end()
-        .prependTo( destination );
-    });
-	
-   $.mobile.document
-    // "filter-menu-menu" is the ID generated for the listview when it is created
-    // by the custom selectmenu plugin. Upon creation of the listview widget we
-    // want to prepend an input field to the list to be used for a filter.
-    .on( "listviewcreate", "#s_regcountry-menu", function( e ) {
-        var input,
-            listbox = $( "#s_regcountry-listbox" ),
-            form = listbox.jqmData( "s_regcountry-form" ),
-            listview = $( e.target );
-        // We store the generated form in a variable attached to the popup so we
-        // avoid creating a second form/input field when the listview is
-        // destroyed/rebuilt during a refresh.
-        if ( !form ) {
-            input = $( "<input data-type='search'></input>" );
-            form = $( "<form></form>" ).append( input );
-            input.textinput();
-            $( "#s_regcountry-listbox" )
-            .prepend( form )
-            .jqmData( "s_regcountry-form", form );
-        }
-        // Instantiate a filterable widget on the newly created listview and
-        // indicate that the generated input is to be used for the filtering.
-        listview.filterable({ input: input });
-    })
-    // The custom select list may show up as either a popup or a dialog,
-    // depending how much vertical room there is on the screen. If it shows up
-    // as a dialog, then the form containing the filter input field must be
-    // transferred to the dialog so that the user can continue to use it for
-    // filtering list items.
-    //
-    // After the dialog is closed, the form containing the filter input is
-    // transferred back into the popup.
-    .on( "pagebeforeshow pagehide", "#s_regcountry-dialog", function( e ) {
-        var form = $( "#s_regcountry-listbox" ).jqmData( "s_regcountry-form" ),
-            placeInDialog = ( e.type === "pagebeforeshow" ),
-            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#s_regcountry-listbox" );
-        form
-        .find( "input" )
-        // Turn off the "inset" option when the filter input is inside a dialog
-        // and turn it back on when it is placed back inside the popup, because
-        // it looks better that way.
-        .textinput( "option", "inset", !placeInDialog )
-        .end()
-        .prependTo( destination );
-    });	
-	
-   $.mobile.document
-    // "filter-menu-menu" is the ID generated for the listview when it is created
-    // by the custom selectmenu plugin. Upon creation of the listview widget we
-    // want to prepend an input field to the list to be used for a filter.
-    .on( "listviewcreate", "#pr_regcountry-menu", function( e ) {
-        var input,
-            listbox = $( "#pr_regcountry-listbox" ),
-            form = listbox.jqmData( "pr_regcountry-form" ),
-            listview = $( e.target );
-        // We store the generated form in a variable attached to the popup so we
-        // avoid creating a second form/input field when the listview is
-        // destroyed/rebuilt during a refresh.
-        if ( !form ) {
-            input = $( "<input data-type='search'></input>" );
-            form = $( "<form></form>" ).append( input );
-            input.textinput();
-            $( "#pr_regcountry-listbox" )
-            .prepend( form )
-            .jqmData( "pr_regcountry-form", form );
-        }
-        // Instantiate a filterable widget on the newly created listview and
-        // indicate that the generated input is to be used for the filtering.
-        listview.filterable({ input: input });
-    })
-    // The custom select list may show up as either a popup or a dialog,
-    // depending how much vertical room there is on the screen. If it shows up
-    // as a dialog, then the form containing the filter input field must be
-    // transferred to the dialog so that the user can continue to use it for
-    // filtering list items.
-    //
-    // After the dialog is closed, the form containing the filter input is
-    // transferred back into the popup.
-    .on( "pagebeforeshow pagehide", "#pr_regcountry-dialog", function( e ) {
-        var form = $( "#pr_regcountry-listbox" ).jqmData( "pr_regcountry-form" ),
-            placeInDialog = ( e.type === "pagebeforeshow" ),
-            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#pr_regcountry-listbox" );
-        form
-        .find( "input" )
-        // Turn off the "inset" option when the filter input is inside a dialog
-        // and turn it back on when it is placed back inside the popup, because
-        // it looks better that way.
-        .textinput( "option", "inset", !placeInDialog )
-        .end()
-        .prependTo( destination );
-    });	
-	
-   $.mobile.document
-    // "filter-menu-menu" is the ID generated for the listview when it is created
-    // by the custom selectmenu plugin. Upon creation of the listview widget we
-    // want to prepend an input field to the list to be used for a filter.
-    .on( "listviewcreate", "#sector-menu", function( e ) {
-        var input,
-            listbox = $( "#sector-listbox" ),
-            form = listbox.jqmData( "sector-form" ),
-            listview = $( e.target );
-        // We store the generated form in a variable attached to the popup so we
-        // avoid creating a second form/input field when the listview is
-        // destroyed/rebuilt during a refresh.
-        if ( !form ) {
-            input = $( "<input data-type='search'></input>" );
-            form = $( "<form></form>" ).append( input );
-            input.textinput();
-            $( "#sector-listbox" )
-            .prepend( form )
-            .jqmData( "sector-form", form );
-        }
-        // Instantiate a filterable widget on the newly created listview and
-        // indicate that the generated input is to be used for the filtering.
-        listview.filterable({ input: input });
-    })
-    // The custom select list may show up as either a popup or a dialog,
-    // depending how much vertical room there is on the screen. If it shows up
-    // as a dialog, then the form containing the filter input field must be
-    // transferred to the dialog so that the user can continue to use it for
-    // filtering list items.
-    //
-    // After the dialog is closed, the form containing the filter input is
-    // transferred back into the popup.
-    .on( "pagebeforeshow pagehide", "#sector-dialog", function( e ) {
-        var form = $( "#sector-listbox" ).jqmData( "sector-form" ),
-            placeInDialog = ( e.type === "pagebeforeshow" ),
-            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#sector-listbox" );
-        form
-        .find( "input" )
-        // Turn off the "inset" option when the filter input is inside a dialog
-        // and turn it back on when it is placed back inside the popup, because
-        // it looks better that way.
-        .textinput( "option", "inset", !placeInDialog )
-        .end()
-        .prependTo( destination );
-    });	
 
-   $.mobile.document
-    // "filter-menu-menu" is the ID generated for the listview when it is created
-    // by the custom selectmenu plugin. Upon creation of the listview widget we
-    // want to prepend an input field to the list to be used for a filter.
-    .on( "listviewcreate", "#region-menu", function( e ) {
-        var input,
-            listbox = $( "#region-listbox" ),
-            form = listbox.jqmData( "region-form" ),
-            listview = $( e.target );
-        // We store the generated form in a variable attached to the popup so we
-        // avoid creating a second form/input field when the listview is
-        // destroyed/rebuilt during a refresh.
-        if ( !form ) {
-            input = $( "<input data-type='search'></input>" );
-            form = $( "<form></form>" ).append( input );
-            input.textinput();
-            $( "#region-listbox" )
-            .prepend( form )
-            .jqmData( "region-form", form );
-        }
-        // Instantiate a filterable widget on the newly created listview and
-        // indicate that the generated input is to be used for the filtering.
-        listview.filterable({ input: input });
-    })
-    // The custom select list may show up as either a popup or a dialog,
-    // depending how much vertical room there is on the screen. If it shows up
-    // as a dialog, then the form containing the filter input field must be
-    // transferred to the dialog so that the user can continue to use it for
-    // filtering list items.
-    //
-    // After the dialog is closed, the form containing the filter input is
-    // transferred back into the popup.
-    .on( "pagebeforeshow pagehide", "#region-dialog", function( e ) {
-        var form = $( "#region-listbox" ).jqmData( "region-form" ),
-            placeInDialog = ( e.type === "pagebeforeshow" ),
-            destination = placeInDialog ? $( e.target ).find( ".ui-content" ) : $( "#region-listbox" );
-        form
-        .find( "input" )
-        // Turn off the "inset" option when the filter input is inside a dialog
-        // and turn it back on when it is placed back inside the popup, because
-        // it looks better that way.
-        .textinput( "option", "inset", !placeInDialog )
-        .end()
-        .prependTo( destination );
-    });		
-	
-	</script>
 </head>
 
 <body>
@@ -596,138 +212,7 @@ function errorHandler (error) {
   <div data-role="content">
   </div>  
  </div>
-  
- <div data-role="page" id="beforelogin1" data-title="APP">
-  <div data-theme="b" data-role="header">
-   <h3>App</h3>
-  </div>
-  <div data-role="content">
-   
-		<!--<center><img src="tenderlogo.png"></center>-->
-		<div data-role="collapsibleset" data-theme="a" data-content-theme="a" data-mini="false">
-		<div data-role="collapsible">
-		<h3>Tenders</h3>
-			<ul data-role="listview">
-				  <li><a href="#" onclick="GetAggData('tenders','bysector'); return false;">Tenders by sector</a></li>
-				  <li><a href="#" onclick="GetAggData('tenders','byregion'); return false;">Tenders by Region</a></li>
-				  <li><a href="#" onclick="GetAggData('tenders','bycountry'); return false;">Tenders by Country</a></li>
-				  <!--
-				  <li><a href="#" onclick="GetAggData('tenders','byproduct'); return false;">Tenders by Product</a></li>
-				  -->
-				</ul>
-		</div>
-		<div data-role="collapsible">
-		<h3>Projects</h3>
-			<ul data-role="listview">
-				  <li><a href="#" onclick="GetAggData('projects','bysector'); return false;">Projects by sector</a></li>
-				  <li><a href="#" onclick="GetAggData('projects','byregion'); return false;">Projects by Region</a></li>
-				  <li><a href="#" onclick="GetAggData('projects','bycountry'); return false;">Projects by Country</a></li>
-				</ul>
-		</div>
-		<div data-role="collapsible">
-		<h3>Contract Awards</h3>
-			<ul data-role="listview">
-				  <li><a href="#" onclick="GetAggData('contracts','bysector'); return false;">Contract Awards by sector</a></li>
-				  <li><a href="#" onclick="GetAggData('contracts','byregion'); return false;">Contract Awards by Region</a></li>
-				  <li><a href="#" onclick="GetAggData('contracts','bycountry'); return false;">Contract Awards by Country</a></li>
-				</ul>	
-		</div>
-		<div data-role="collapsible">
-		<h3>Business News</h3>
-			<ul data-role="listview">
-				  <li><a href="#" onclick="GetAggData('news','bysector'); return false;">Procurement News by sector</a></li>
-				  <li><a href="#" onclick="GetAggData('news','byregion'); return false;">Procurement News by Region</a></li>
-				  <li><a href="#" onclick="GetAggData('news','bycountry'); return false;">Procurement News by Country</a></li>
-				</ul>
-		</div>		
-		</div>
-		
-	   <!--Device Properties-->
-	   <ul data-role="listview" data-inset="true" id="deviceProperties"></ul>		
-	   <ul data-role="listview" data-inset="true" id="app-status-ul2"></ul>
-  </div>
-
-  	<div data-role="footer" data-position="fixed" data-theme="a">
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Search</a></li>
-				<li><a href="#" OnClick="Login(); return false;" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
-				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Free Trial</a></li>
-				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all"">Subscribe</a></li>
-			</ul>
-		</div><!-- /navbar -->
-	</div><!-- /footer -->
-  
- </div>
- 
- <div data-role="page" id="thanks" data-title="APP">
-  <div data-theme="b" data-role="header">
-   <h1>App</h1>
-   <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
-  </div>
-  <div data-role="content">
-   <center><h1>Thanks</h1></center>
-	<ul data-role="listview" data-inset="true" id="thanks_list"></ul>		
-
-  </div>
-
-  	<div data-role="footer" data-position="fixed" data-theme="a">
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Search</a></li>
-				<li><a href="#" OnClick="Login(); return false;" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
-				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Free Trial</a></li>
-				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all"">Subscribe</a></li>
-			</ul>
-		</div><!-- /navbar -->
-	</div><!-- /footer -->
-  
- </div>
- 
-  <div data-role="page" id="thanks_afterlogin" data-title="Thanks">
-  <div data-role="header" data-theme="b">
-   <h3>Thanks</h3>
-	<a href="#nav-panel-m1" data-icon="bars" data-iconpos="notext">Menu</a>
-	<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>	   
-  </div>
-  <div data-role="content">
-   
-	<ul data-role="listview" data-inset="true" id="thanks_list_afterlogin"></ul>		
-
-  </div>
-
-  	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-m1">
-
-		<ul data-role="listview">
-			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
-			<li><a href="#email_alert">E-mail Alert</a></li>
-			<li><a href="#contact">Contact Tendersinfo</a></li>
-			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
-			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
-			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
-			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
-			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
-			<!--
-			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
-			-->
-		</ul>
-
-	</div><!-- /panel -->
-	
-  	<div data-role="footer" data-position="fixed" data-theme="a">
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
-				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
-				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
-				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
-				<!-- ui-icon-arrow-u ui-btn-icon-top -->
-			</ul>
-		</div><!-- /navbar -->
-	</div><!-- /footer -->
-  
- </div>
- 
+    
  <div data-role="page" class="jqm-demos" id="main" data-title="APP">
 
     <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
@@ -765,7 +250,7 @@ function errorHandler (error) {
 	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-m2">
 
 		<ul data-role="listview">
-			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#" OnClick="ShowHome2(); return false;">Home</a></li>
 			<!--
 			<li><a href="#contact">Contact</a></li>
 			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
@@ -1321,7 +806,7 @@ function errorHandler (error) {
 
      <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
         <h1>App</h1>
-        <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+        <a href="#" Onclick="ShowHome2();return false;" data-icon="home" data-iconpos="notext">Menu</a>
     </div><!-- /header -->
 
     <div role="main" class="ui-content jqm-content jqm-fullwidth">
@@ -1346,7 +831,7 @@ function errorHandler (error) {
 
      <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
         <h1>App</h1>
-        <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+        <a href="#" Onclick="ShowHome2();return false;" data-icon="home" data-iconpos="notext">Menu</a>
     </div><!-- /header -->
 
     <div role="main" class="ui-content jqm-content jqm-fullwidth">
@@ -1376,7 +861,7 @@ function errorHandler (error) {
 
      <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
         <h1>App</h1>
-        <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+        <a href="#" Onclick="ShowHome2();return false;" data-icon="home" data-iconpos="notext">Menu</a>
     </div><!-- /header -->
 
     <div role="main" class="ui-content jqm-content jqm-fullwidth">
@@ -3205,7 +2690,7 @@ to Tendersinfo.com and you accept To Comply With The
 	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1">
 
 		<ul data-role="listview">
-			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#" OnClick="ShowHome2(); return false;">Home</a></li>
 			<!--
 			<li><a href="#contact">Contact Tendersinfo</a></li>
 			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
@@ -3243,7 +2728,7 @@ to Tendersinfo.com and you accept To Comply With The
 
     <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
 		<h1>My Ticket</h1>
-        <a href="#nav-panel-p1" OnClick="ShowHome(); return false;" data-icon="bars" data-iconpos="notext">Menu</a>
+        <a href="#nav-panel-p1" OnClick="ShowHome2(); return false;" data-icon="bars" data-iconpos="notext">Menu</a>
     </div><!-- /header -->
 
     <div role="main" class="ui-content jqm-content jqm-fullwidth">
@@ -3260,7 +2745,7 @@ to Tendersinfo.com and you accept To Comply With The
 	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1">
 
 		<ul data-role="listview">
-			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#" OnClick="ShowHome2(); return false;">Home</a></li>
 			<!--
 			<li><a href="#contact">Contact Tendersinfo</a></li>
 			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
@@ -3300,7 +2785,7 @@ to Tendersinfo.com and you accept To Comply With The
 	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1">
 
 		<ul data-role="listview">
-			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#" OnClick="ShowHome2(); return false;">Home</a></li>
 			<!--
 			<li><a href="#contact">Contact Tendersinfo</a></li>
 			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
@@ -3356,7 +2841,7 @@ to Tendersinfo.com and you accept To Comply With The
 	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1">
 
 		<ul data-role="listview">
-			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#" OnClick="ShowHome2(); return false;">Home</a></li>
 			<!--
 			<li><a href="#contact">Contact Tendersinfo</a></li>
 			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
@@ -3625,6 +3110,73 @@ to Tendersinfo.com and you accept To Comply With The
  </div>
  
 
+ <div data-role="page" id="thanks" data-title="APP">
+  <div data-theme="b" data-role="header">
+   <h1>App</h1>
+   <a href="#" Onclick="ShowHome();return false;" data-icon="home" data-iconpos="notext">Menu</a>
+  </div>
+  <div data-role="content">
+   <center><h1>Thanks</h1></center>
+	<ul data-role="listview" data-inset="true" id="thanks_list"></ul>		
 
+  </div>
+
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#search" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Search</a></li>
+				<li><a href="#" OnClick="Login(); return false;" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">Login</a></li>
+				<li><a href="#freetrial" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all">Free Trial</a></li>
+				<li><a href="#subscribe" data-prefetch="true" class="ui-btn ui-shadow ui-corner-all"">Subscribe</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+  
+ </div>
+ 
+  <div data-role="page" id="thanks_afterlogin" data-title="Thanks">
+  <div data-role="header" data-theme="b">
+   <h3>Thanks</h3>
+	<a href="#nav-panel-m1" data-icon="bars" data-iconpos="notext">Menu</a>
+	<a href="#" OnClick="SeachPage();return false;" data-icon="search" data-iconpos="notext">Search</a>	   
+  </div>
+  <div data-role="content">
+   
+	<ul data-role="listview" data-inset="true" id="thanks_list_afterlogin"></ul>		
+
+  </div>
+
+  	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-m1">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome(); return false;">Home</a></li>
+			<li><a href="#email_alert">E-mail Alert</a></li>
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+  	<div data-role="footer" data-position="fixed" data-theme="a">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="GetMyData('tenders'); return false;" data-prefetch="true" data-transition="fade" class="ui-btn ui-shadow ui-corner-all">Tenders</a></li>
+				<li><a href="#" onclick="GetMyData('projects'); return false;" data-prefetch="true" data-transition="flip" class="ui-btn ui-shadow ui-corner-all">Projects</a></li>
+				<li><a href="#" onclick="GetMyData('ca'); return false;" data-prefetch="true" data-transition="turn" class="ui-btn ui-shadow ui-corner-all">Contracts</a></li>
+				<li><a href="#" onclick="GetMyData('news'); return false;" data-prefetch="true" data-transition="slide" class="ui-btn ui-shadow ui-corner-all">News</a></li>
+				<!-- ui-icon-arrow-u ui-btn-icon-top -->
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+  
+ </div>
+ 
 </body>
 </html

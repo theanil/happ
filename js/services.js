@@ -43,11 +43,35 @@ function ShowHome()
 	}else
 	{
 		//alert('test');
+		//name = localStorage.session_name;
+		//balance = localStorage.session_id_balance;
+		//alert(name);
 		$.mobile.changePage( "#main",null, true, true);	
 		$("#welcome_message").html('');
-		$("#welcome_message").append("<li>Welcome " + localStorage.session_name + "</li>").listview("refresh");
+		//$("#welcome_message").append("<li>Welcome " + name + "</li>").listview("refresh");
+		//$("#welcome_message").append("<li>Balance: Rs " + balance + "</li>").listview("refresh");				
 		//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
-		$("#welcome_message").append("<li>Balance: Rs " + localStorage.session_id_balance + "</li>").listview("refresh");				
+		//$("#welcome_message").append('').listview("refresh");
+	}
+}
+
+function ShowHome2()
+{	
+	if(localStorage.session_id_local == undefined)
+	{
+		$.mobile.changePage( "#beforelogin",null, true, true);
+	}else
+	{
+		//alert('test');
+		name = localStorage.session_name;
+		balance = localStorage.session_id_balance;
+		//alert(name);
+		$.mobile.changePage( "#main",null, true, true);	
+		$("#welcome_message").html('');
+		$("#welcome_message").append("<li>Welcome " + name + "</li>").listview("refresh");
+		$("#welcome_message").append("<li>Balance: Rs " + balance + "</li>").listview("refresh");				
+		//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
+		//$("#welcome_message").append('').listview("refresh");
 	}
 }
 
@@ -269,7 +293,7 @@ $(document).on('pageinit', '#login', function()
 								$("#welcome_message").html('');
 								$("#welcome_message").append("<li>Welcome " + result.data.name + "</li>").listview("refresh");
 								//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
-								$("#welcome_message").append("<li>Balance: Rs" + result.data.balance + "</li>").listview("refresh");								
+								$("#welcome_message").append("<li>Balance: Rs " + result.data.balance + "</li>").listview("refresh");								
 								if(diff2>0 && diff2<=30)
 								{
 									username = localStorage.session_id_username;
