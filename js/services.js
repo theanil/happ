@@ -699,7 +699,7 @@ function TransTicket()
 		//$.mobile.showPageLoadingMsg(true); // This will show ajax spinner
 		//$.mobile.loading( "show" );
 		$.mobile.loading( 'show', {
-			text: 'Listing Ticket ...',
+			text: 'Listing Transaction History ...',
 			textVisible: true,
 			theme: 'a',
 			html: ""
@@ -720,13 +720,6 @@ function TransTicket()
 			//alert(result.data.balance);
 			console.log(result.message);
 			//alert(Object.keys(result.data.service).length);
-			//console.log(Object.keys(result.data.service));
-			//return false;
-			//alert(result.S_ID);
-			//alert(result.Offset);
-			//alert(result.Total);
-			//alert(newtotal);
-			//return false;
 			
 			//alert(result[0][0].site_tender_id);
 			//alert(localStorage.session_id_local);
@@ -765,7 +758,7 @@ function TransTicket()
 			if(i == 0)
 			{
 				//alert('no ticket');
-				$("#sum_list_afterlogin_list").append("<li><center>Active Ticket is not available.</center></li>").listview("refresh");
+				$("#sum_list_afterlogin_list").append("<li><center>Transaction History not available.</center></li>").listview("refresh");
 			}
 		} else 
 		{
