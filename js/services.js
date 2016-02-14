@@ -637,12 +637,12 @@ function ListTicket(last)
 					ticket_url = serviceURL + 'genqr?ticket_no=' + sticket_id;
 					//ticket_url = '';
 					img = '<img src="' + ticket_url + '" >';
-					console.log(service_name);
+					console.log(ticket_url);
 					console.log(img);
 					//service_name,datec,s_validity
-					console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>");
+					console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>");
 					
-					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
+					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
 					//$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 										
 					//console.log(result[0][i].Location);
@@ -784,7 +784,7 @@ function TransTicket()
 });        
 }
 
-function TicketID(ticket_no, service_name,datec,s_validity )
+function TicketID(sticket_id, service_name,datec,s_validity )
 {
 	//alert('test' + ticket_no);
 		//service_id = $("#service_id").val();
@@ -792,7 +792,7 @@ function TicketID(ticket_no, service_name,datec,s_validity )
 	//chargeable = $("#chargeable").val();
 	//service_name = $("#service_name").val();
 	
-		ticket_url = serviceURL + 'genqr?ticket_no=' + ticket_no;
+		ticket_url = serviceURL + 'genqr?ticket_no=' + sticket_id;
 		//ticket_url = '';
 		img = '<img src="' + ticket_url + '" >';
 		console.log(service_name);
