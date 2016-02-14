@@ -1,5 +1,5 @@
-var serviceURL = "http://happ.phpzeal.com/services/";
-//var serviceURL = "http://localhost/h_app/services/";
+//var serviceURL = "http://happ.phpzeal.com/services/";
+var serviceURL = "http://localhost/h_app/services/";
 
 var version = "1.0";
 localStorage.setItem("session_version", version);
@@ -906,22 +906,6 @@ function RechargeHistory()
 	}
 });        
 }
-
-function ValidateStart()
-{
-   cordova.plugins.barcodeScanner.scan(
-      function (result) {
-          alert("We got a barcode\n" +
-                "Result: " + result.text + "\n" +
-                "Format: " + result.format + "\n" +
-                "Cancelled: " + result.cancelled);
-      }, 
-      function (error) {
-          alert("Scanning failed: " + error);
-      }
-   );
-   
-}   
 
 function Recharge()
 {	
