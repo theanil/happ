@@ -1,5 +1,5 @@
-//var serviceURL = "http://happ.phpzeal.com/services/";
-var serviceURL = "http://localhost/h_app/services/";
+var serviceURL = "http://happ.phpzeal.com/services/";
+//var serviceURL = "http://localhost/h_app/services/";
 
 var version = "1.0";
 localStorage.setItem("session_version", version);
