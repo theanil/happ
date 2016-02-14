@@ -232,8 +232,12 @@
 
 			<ul data-role="listview" data-inset="true" >
 				  <li><a href="#" onclick="ListServices(); return false;">Book Services</a></li>
-				  <li><a href="#" onclick="ListTicket(0); return false;">My Ticket</a></li>
+				  <li><a href="#" onclick="ListTicket(0); return false;">Show My Ticket</a></li>
+				  <li><a href="#" onclick="TransTicket(0); return false;">Transaction History</a></li>
+				  <li><a href="#" onclick="RechargeHistory(0); return false;">Recharge History</a></li>
 				  <li><a href="#" onclick="Recharge(); return false;">Recharge</a></li>
+				  
+				  <li><a href="#" onclick="ValidateStart(); return false;">Validate Ticket</a></li>
 				  <!--
 				  <li><a href="#" onclick="GetAggData('tenders','byproduct'); return false;">Tenders by Product</a></li>
 				  -->
@@ -2727,16 +2731,56 @@ to Tendersinfo.com and you accept To Comply With The
   <div data-role="page" class="jqm-demos" id="search_result_afterlogin_list" data-title="Search Result">
 
     <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
-		<h1>My Ticket</h1>
+		<h1>Show My Ticket</h1>
         <a href="#nav-panel-p1" OnClick="ShowHome2(); return false;" data-icon="bars" data-iconpos="notext">Menu</a>
     </div><!-- /header -->
 
     <div role="main" class="ui-content jqm-content jqm-fullwidth">
 
-    	<h4>My Ticket</h4>
+    	<h4>My Ticket(s)</h4>
 		<h5 id="message1_afterlogin"></h5>
 			
 			<ul data-role="listview" id="sum_list_afterlogin_list" data-filter="false"></ul>
+			
+			<ul data-role="listview" id="but_list_afterlogin"></ul>
+			
+	</div><!-- /content -->
+
+	<div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="nav-panel-p1">
+
+		<ul data-role="listview">
+			<li><a href="#" OnClick="ShowHome2(); return false;">Home</a></li>
+			<!--
+			<li><a href="#contact">Contact Tendersinfo</a></li>
+			<li><a href="#" OnClick="GetBriefcase(); return false;">My Briefcase</a></li>
+			<li><a href="#" OnClick="GetICBStatus(); return false;">My ICB/NCB Status</a></li>
+			<li><a href="#" OnClick="GetProfile(); return false;">Edit Profile</a></li>
+			-->
+			<li><a href="#" OnClick="LogOut(); return false;">Log Out</a></li>
+			<li><a href="#" OnClick="ExitApp(); return false;">Exit Application</a></li>
+			<!--
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			-->
+		</ul>
+
+	</div><!-- /panel -->
+	
+	
+ </div>
+ 
+   <div data-role="page" class="jqm-demos" id="search_result_recharge_history" data-title="Search Result">
+
+    <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme="b">
+		<h1>Recharge History</h1>
+        <a href="#nav-panel-p1" OnClick="ShowHome2(); return false;" data-icon="bars" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content jqm-fullwidth">
+
+    	<h4>My Recharges(s)</h4>
+		<h5 id="message1_afterlogin"></h5>
+			
+			<ul data-role="listview" id="sum_list_recharge_history" data-filter="false"></ul>
 			
 			<ul data-role="listview" id="but_list_afterlogin"></ul>
 			
