@@ -72,8 +72,8 @@ function ShowHome2()
 		$.mobile.changePage( "#main",null, true, true);	
 		$("#welcome_message").html('');
 		$("#welcome_message").append("<li>Welcome " + name + "</li>").listview("refresh");
-		$("#welcome_message").append("<li>Balance: Rs " + balance + "</li>").listview("refresh");
 		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + mem_photo + "\"></center></li>").listview("refresh");
+		$("#welcome_message").append("<li>Balance: Rs " + balance + "</li>").listview("refresh");
 		
 		//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
 		//$("#welcome_message").append('').listview("refresh");
@@ -299,8 +299,9 @@ $(document).on('pageinit', '#login', function()
 								$("#welcome_message").html('');
 								$("#welcome_message").append("<li>Welcome " + result.data.name + "</li>").listview("refresh");
 								//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
-								$("#welcome_message").append("<li>Balance: Rs " + result.data.balance + "</li>").listview("refresh");	
+	
 								$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + result.data.mem_photo + "\"></center></li>").listview("refresh");	
+								$("#welcome_message").append("<li>Balance: Rs " + result.data.balance + "</li>").listview("refresh");
 								
 								if(diff2>0 && diff2<=30)
 								{
@@ -810,9 +811,9 @@ function TicketID(sticket_id, service_name,datec,s_validity )
 		$.mobile.changePage( "#search_result_afterlogin_list",null, true, true);
 		$("#sum_list_afterlogin_list").html('');
 			
-		$("#sum_list_afterlogin_list").append("<li><a href=\"#\"><center>Service: " + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</a><br><br>" + img + "</center><li>").listview("refresh");
+		$("#sum_list_afterlogin_list").append("<li><a href=\"#\"><center>Service: " + service_name + "<br> Booking Date: " + datec + "<br>Validity: " + s_validity + "</a><br><br>" + img + "</center><li>").listview("refresh");		
 		
-		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh")		
+		$("#sum_list_afterlogin_list").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh")		
 }
 
 function RechargeHistory()

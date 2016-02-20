@@ -160,8 +160,9 @@
 		$("#welcome_message").html('');
 		$("#welcome_message").append("<li>" + 'Welcome ' + localStorage.session_name + "</li>").listview("refresh");
 		//$("#welcome_message").append("<li>" + 'Validity: ' + dt2 + "</li>").listview("refresh");
-		$("#welcome_message").append("<li>" + 'Balance: Rs ' + localStorage.session_id_balance + "</li>").listview("refresh");
-		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh");		
+
+		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh");
+		$("#welcome_message").append("<li>" + 'Balance: Rs ' + localStorage.session_id_balance + "</li>").listview("refresh");		
 
 	});
 	</script>	
