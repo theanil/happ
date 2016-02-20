@@ -2,6 +2,7 @@ var serviceURL = "http://happ.phpzeal.com/services/";
 //var serviceURL = "http://localhost/h_app/services/";
 
 var version = "1.0";
+var appname = "H App";
 localStorage.setItem("session_version", version);
 
 function Login()
@@ -145,13 +146,13 @@ $(document).on('pageinit', '#beforelogin', function()
 								//return false;
 								//alert(username);
 								$('#username2').val(username);
-								showMessage(result.message,null,result.message,'OK');
+								showMessage(result.message,null,appname,'OK');
 								
 							} else 
 							{
 								//alert(result.message);
 								$.mobile.loading( "hide" );								
-								showMessage(result.message,null,result.message,'OK');
+								showMessage(result.message,null,appname,'OK');
 								//alert('Logon unsuccessful!');
 							}
 						},
@@ -356,7 +357,7 @@ function ListServices()
 		//$.mobile.showPageLoadingMsg(true); // This will show ajax spinner
 		//$.mobile.loading( "show" );
 		$.mobile.loading( 'show', {
-			text: 'Getting Service List ...',
+			text: 'Getting Services ...',
 			textVisible: true,
 			theme: 'a',
 			html: ""
@@ -460,7 +461,8 @@ function BookServices()
 		return false;
 	}else
 	{
-		alert('Booking ' + service_name);
+		//alert('Booking ' + service_name);
+		showMessage('Booking ' + service_name,null,appname,'OK');
 	}
 	//return false;
 	//http://localhost/h_app/services/deduct_wallet/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d&service_id=1
@@ -479,7 +481,7 @@ function BookServices()
 		//$.mobile.showPageLoadingMsg(true); // This will show ajax spinner
 		//$.mobile.loading( "show" );
 		$.mobile.loading( 'show', {
-			text: 'Loading Services ...',
+			text: 'Booking Service ...',
 			textVisible: true,
 			theme: 'a',
 			html: ""
@@ -495,7 +497,8 @@ function BookServices()
 		if(result.status == 'success') 
 		{		
 			$.mobile.loading( "hide" );	
-			alert(result.message);
+			//alert(result.message);
+			showMessage(result.message,null,appname,'OK');
 			//alert(result.data.balance);
 			console.log(result.message);
 			localStorage.setItem("session_id_balance", result.data.balance);
@@ -748,7 +751,7 @@ function TransTicket()
 				//service_name,datec,s_validity
 				console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>");
 				
-				$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</li>").listview("refresh");
+				$("#sum_list_afterlogin_list").append("<li><a href=\"#\">" + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
 				//$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 									
 				//console.log(result[0][i].Location);
@@ -800,7 +803,7 @@ function TicketID(sticket_id, service_name,datec,s_validity )
 		$.mobile.changePage( "#search_result_afterlogin_list",null, true, true);
 		$("#sum_list_afterlogin_list").html('');
 			
-		$("#sum_list_afterlogin_list").append("<li><center>Service: " + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</center><li>").listview("refresh");
+		$("#sum_list_afterlogin_list").append("<li><a href=\"#\"><center>Service: " + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</a><br><br>" + img + "</center><li>").listview("refresh");
 }
 
 function RechargeHistory()
@@ -871,7 +874,7 @@ function RechargeHistory()
 				datec = result.data.service[i].datec;
 				comments = result.data.service[i].comments;
 
-				$("#sum_list_recharge_history").append("<li>Source: " + comments + "<br>Date of Recharge: <br>" + datec + "<br>Amount: " + tran_amt + "</li>").listview("refresh");
+				$("#sum_list_recharge_history").append("<li><a href=\"#\">Source: " + comments + "<br>Date of Recharge: <br>" + datec + "<br>Amount: " + tran_amt + "</a></li>").listview("refresh");
 				//$("#sum_list_recharge_history").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 									
 				//console.log(result[0][i].Location);
@@ -944,7 +947,8 @@ function RechargeFinal()
 		return false;
 	}else
 	{
-		alert('Recharging ');
+		//alert('Recharging ');
+		showMessage('Recharging ',null,appname,'OK');
 		//showMessage("Recharging Wallet ",null,'App','OK');
 	}
 	//return false;
@@ -993,8 +997,8 @@ function RechargeFinal()
 			
 			$.mobile.changePage( "#search_result_afterlogin_thanks",null, true, true);
 			$("#sum_list_afterlogin_thanks").html('');
-			$("#sum_list_afterlogin_thanks").append("<li>Recharge Done for Rs " + rechargeamt + "</li>").listview("refresh");
-			$("#sum_list_afterlogin_thanks").append("<li>Current Balance: Rs " + result.data.balance + "</li>").listview("refresh");
+			$("#sum_list_afterlogin_thanks").append("<li><a href=\"#\">Recharge Done for Rs " + rechargeamt + "</a></li>").listview("refresh");
+			$("#sum_list_afterlogin_thanks").append("<li><a href=\"#\">Current Balance: Rs " + result.data.balance + "</a></li>").listview("refresh");
 
 		} else 
 		{
