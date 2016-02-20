@@ -812,7 +812,7 @@ function TicketID(sticket_id, service_name,datec,s_validity )
 		$.mobile.changePage( "#search_result_afterlogin_list",null, true, true);
 		$("#sum_list_afterlogin_list").html('');
 			
-		$("#sum_list_afterlogin_list").append("<li><a href=\"#\"><center>Service: " + service_name + "<br> Booking Date: " + datec + "<br>Validity: " + s_validity + "</a><br>" + img + "</center><br><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh")		
+		$("#sum_list_afterlogin_list").append("<li><center>Service: " + service_name + "<br> Booking Date: " + datec + "<br>Validity: " + s_validity + "<br>" + img + "</center><hr><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh")		
 }
 
 function RechargeHistory()
