@@ -1,5 +1,5 @@
-var serviceURL = "http://happ.phpzeal.com/services/";
-//var serviceURL = "http://localhost/h_app/services/";
+//var serviceURL = "http://happ.phpzeal.com/services/";
+var serviceURL = "http://localhost/h_app/services/";
 
 var version = "1.0";
 var appname = "H App";
@@ -40,6 +40,7 @@ function ShowHome()
 {	
 	if(localStorage.session_id_local == undefined)
 	{
+		//alert('1');
 		$.mobile.changePage( "#beforelogin",null, true, true);
 	}else
 	{
@@ -66,11 +67,14 @@ function ShowHome2()
 		//alert('test');
 		name = localStorage.session_name;
 		balance = localStorage.session_id_balance;
+		mem_photo = localStorage.session_id_mem_photo;
 		//alert(name);
 		$.mobile.changePage( "#main",null, true, true);	
 		$("#welcome_message").html('');
 		$("#welcome_message").append("<li>Welcome " + name + "</li>").listview("refresh");
-		$("#welcome_message").append("<li>Balance: Rs " + balance + "</li>").listview("refresh");				
+		$("#welcome_message").append("<li>Balance: Rs " + balance + "</li>").listview("refresh");
+		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + mem_photo + "\"></center></li>").listview("refresh");
+		
 		//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
 		//$("#welcome_message").append('').listview("refresh");
 	}
@@ -284,6 +288,7 @@ $(document).on('pageinit', '#login', function()
 								localStorage.setItem("session_validity", result.data.mem_validity);
 								localStorage.setItem("session_id_email_id", result.data.email);
 								localStorage.setItem("session_id_balance", result.data.balance);
+								localStorage.setItem("session_id_mem_photo", result.data.mem_photo);
 								
 								//alert(result.email_id);
 								//$.mobile.changePage("#second");                         
@@ -294,7 +299,9 @@ $(document).on('pageinit', '#login', function()
 								$("#welcome_message").html('');
 								$("#welcome_message").append("<li>Welcome " + result.data.name + "</li>").listview("refresh");
 								//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
-								$("#welcome_message").append("<li>Balance: Rs " + result.data.balance + "</li>").listview("refresh");								
+								$("#welcome_message").append("<li>Balance: Rs " + result.data.balance + "</li>").listview("refresh");	
+								$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + result.data.mem_photo + "\"></center></li>").listview("refresh");	
+								
 								if(diff2>0 && diff2<=30)
 								{
 									username = localStorage.session_id_username;
@@ -620,7 +627,7 @@ function ListTicket(last)
 					//alert('generating qr code');
 					//TicketID(ticket_no);
 					
-					$("#sum_list_afterlogin_list").append("<li><center>Service: " +  service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</center></li>").listview("refresh");
+					$("#sum_list_afterlogin_list").append("<li><center>Service: " +  service_name + "<br>Booking Date: " + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</center></li>").listview("refresh");
 			}
 			else
 			{
@@ -645,7 +652,7 @@ function ListTicket(last)
 					//service_name,datec,s_validity
 					console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>");
 					
-					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
+					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Booking Date: " + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
 					//$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 										
 					//console.log(result[0][i].Location);
@@ -749,9 +756,9 @@ function TransTicket()
 				console.log(service_name);
 				console.log(img);
 				//service_name,datec,s_validity
-				console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>");
+				console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Booking Date: " + datec + "<br>Validity: " + s_validity + "</a></li>");
 				
-				$("#sum_list_afterlogin_list").append("<li><a href=\"#\">" + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
+				$("#sum_list_afterlogin_list").append("<li><a href=\"#\">" + service_name + "<br>Booking Date: " + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
 				//$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 									
 				//console.log(result[0][i].Location);
@@ -804,6 +811,8 @@ function TicketID(sticket_id, service_name,datec,s_validity )
 		$("#sum_list_afterlogin_list").html('');
 			
 		$("#sum_list_afterlogin_list").append("<li><a href=\"#\"><center>Service: " + service_name + "<br>Date of Booking: <br>" + datec + "<br>Validity: " + s_validity + "</a><br><br>" + img + "</center><li>").listview("refresh");
+		
+		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh")		
 }
 
 function RechargeHistory()
@@ -874,7 +883,7 @@ function RechargeHistory()
 				datec = result.data.service[i].datec;
 				comments = result.data.service[i].comments;
 
-				$("#sum_list_recharge_history").append("<li><a href=\"#\">Source: " + comments + "<br>Date of Recharge: <br>" + datec + "<br>Amount: " + tran_amt + "</a></li>").listview("refresh");
+				$("#sum_list_recharge_history").append("<li><a href=\"#\">Source: " + comments + "<br> Recharge Date: " + datec + "<br>Amount: Rs " + tran_amt + "</a></li>").listview("refresh");
 				//$("#sum_list_recharge_history").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 									
 				//console.log(result[0][i].Location);

@@ -152,36 +152,7 @@
 	<script>
 	$(document).on('pageinit', '#main', function()
 	{
-		dt = localStorage.session_validity;
-
-		var d = new Date();
-		
-		var dd = dt.substring(8, 10);
-		var mm = dt.substring(5, 7);
-		var yy = dt.substring(0, 4);
-		
-		//alert(dd + mm + yy);
-		var d2 = new Date(yy,Number(mm)-1,Number(dd));
-		//alert(Number(d));
-		//alert(Number(d2));
-		
-		d.setHours(0);
-		d.setMinutes(0, 0, 0);
-		d2.setHours(0);
-		d2.setMinutes(0, 0, 0);
-		var datediff = Math.abs(d.getTime() - d2.getTime()); // difference 
-		var diff2= parseInt(datediff / (24 * 60 * 60 * 1000), 10); 
-		//alert(d.getTime());
-		//alert(diff2);
-		//if(d2 <d)
-		if(diff2 < 0)
-		{
-			alert("Validity is expired, Logging out of system");
-			LogOut();
-		}
-
-		var dt2 = dd + "-" + mm + "-" +yy;
-		
+				
 		//alert(dd + " * " + mm + " * " + yy);
 		//alert(localStorage.session_id_local);
 		//alert(localStorage.device_uuid);
@@ -190,13 +161,8 @@
 		$("#welcome_message").append("<li>" + 'Welcome ' + localStorage.session_name + "</li>").listview("refresh");
 		//$("#welcome_message").append("<li>" + 'Validity: ' + dt2 + "</li>").listview("refresh");
 		$("#welcome_message").append("<li>" + 'Balance: Rs ' + localStorage.session_id_balance + "</li>").listview("refresh");
-		if(diff2>0 && diff2<=30)
-		{
-			username = localStorage.session_id_username;
-			//alert('<li><a href="#" onclick="Renew(' + "'" + username + "'" + ');return false;">' + "Renew Subscription" +'</a> </li>');
-			//$("#welcome_message").append('<li><a href="#" onclick="Renew(' + "'" + username + "'" + ');return false;">' + "Renew Subscription" +'</a> </li>').listview("refresh");
-		}	
-		
+		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh");		
+
 	});
 	</script>	
 	
