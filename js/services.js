@@ -1027,6 +1027,74 @@ function RechargeFinal()
 
 }
 
+function CheckBalance()
+{		
+	//service_id = $("#service_id").val();
+	//charges = $("#charges").val();
+	//chargeable = $("#chargeable").val();
+	//service_name = $("#service_name").val();
+	
+	searchparam = "device_id=" + localStorage.device_uuid + "&device_platform=" +localStorage.device_platform + "&device_browser=" + localStorage.device_browser + "&session="+ localStorage.session_id_local;
+	//alert(searchparam);
+	
+	//return false;
+	//http://localhost/h_app/services/getbalance/1?session=HA8ca047471e1c0810733849d1a3d13a013be6986d		
+	url = serviceURL + 'getbalance/1'
+	//alert(url);
+
+	//return false;
+	$.ajax({url: url ,
+	data: searchparam,
+	type: 'get',                   
+	async: 'true',
+	dataType: 'json',
+	beforeSend: function() {
+		// This callback function will trigger before data is sent
+		//$.mobile.showPageLoadingMsg(true); // This will show ajax spinner
+		//$.mobile.loading( "show" );
+		$.mobile.loading( 'show', {
+			text: 'Checking Balance ...',
+			textVisible: true,
+			theme: 'a',
+			html: ""
+		});
+			
+	},
+	complete: function() {
+		// This callback function will trigger on data sent/received complete
+	   // $.mobile.hidePageLoadingMsg(); // This will hide ajax spinner
+		$.mobile.loading( "hide" );
+	},
+	success: function (result) {
+		if(result.status == 'success') 
+		{		
+			$.mobile.loading( "hide" );	
+			//alert(result.message);
+			//return false;
+			//alert(result.data.balance);
+			console.log(result.message);
+			//alert(Object.keys(result.data.service).length);
+			
+			//alert(result[0][0].site_tender_id);
+			//alert(localStorage.session_id_local);
+			localStorage.setItem("session_id_balance", result.data.balance);
+		} else 
+		{
+			//alert(result.message);
+			$.mobile.loading( "hide" );	
+			showMessage(result.message,null,'Error','OK');
+			//alert('Logon unsuccessful!'); 
+		}
+	},
+	error: function (request,error) {
+		// This callback function will trigger on unsuccessful action                
+		//alert('Please check your data connection!');
+		$.mobile.loading( "hide" );	
+		showMessage('Please check your data connection!',null,'Error','OK');
+	}
+});        
+}
+
 $(document).on('pageinit', '#freetrial', function()
 {  
 	$(document).on('click', '#submit_free', function(e) 
