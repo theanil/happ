@@ -629,6 +629,7 @@ function ListTicket(last)
 					//TicketID(ticket_no);
 					
 					$("#sum_list_afterlogin_list").append("<li><center>Service: " +  service_name + "<br>Booking Date: " + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</center></li>").listview("refresh");
+					$("#sum_list_afterlogin_list").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh");					
 			}
 			else
 			{
@@ -811,9 +812,7 @@ function TicketID(sticket_id, service_name,datec,s_validity )
 		$.mobile.changePage( "#search_result_afterlogin_list",null, true, true);
 		$("#sum_list_afterlogin_list").html('');
 			
-		$("#sum_list_afterlogin_list").append("<li><a href=\"#\"><center>Service: " + service_name + "<br> Booking Date: " + datec + "<br>Validity: " + s_validity + "</a><br><br>" + img + "</center><li>").listview("refresh");		
-		
-		$("#sum_list_afterlogin_list").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh")		
+		$("#sum_list_afterlogin_list").append("<li><a href=\"#\"><center>Service: " + service_name + "<br> Booking Date: " + datec + "<br>Validity: " + s_validity + "</a><br>" + img + "</center><br><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh")		
 }
 
 function RechargeHistory()
