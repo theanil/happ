@@ -588,12 +588,15 @@ function SetBookOption(service_id,service_name,chargeable,charges)
 	//$("#sum_list_afterlogin_book").append("<li>Guest: " + plus + " 0 " + minus + " </li>").listview("refresh");		
 	$("#sum_list_afterlogin_book").append("<li>" +  img + " " + service_name + "<br> Rs " + charges + "</li>").listview("refresh");
 
-	if(service_name != 'Swimming')
-	{
-		para = "Date: " + selectdate + "<br><br>Court: " + selectcourt + "<br><br>Timing: " + selecttiming + "<br><br>Guest: " + select;
-	}else
+	if(service_name == 'Swimming')
 	{
 		para = "Timing: " + selecttiming + "<br><br>Guest: " + select;
+	}else if(service_name == 'Steam')
+	{
+		para = "Date: " + selectdate + "<br><br>Timing: " + selecttiming + "<br><br>Guest: " + select;
+	}else
+	{
+		para = "Date: " + selectdate + "<br><br>Court: " + selectcourt + "<br><br>Timing: " + selecttiming + "<br><br>Guest: " + select;
 	}
 	$("#sum_list_afterlogin_book").append("<li><p>" + para + "</p>").listview("refresh");
 	
