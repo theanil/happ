@@ -481,7 +481,7 @@ function BookServices()
 	}else
 	{
 		//alert('Booking ' + service_name);
-		showMessage('Booking ' + service_name,null,appname,'OK');
+		//showMessage('Booking ' + service_name,null,appname,'OK');
 	}
 	//return false;
 	//http://localhost/h_app/services/deduct_wallet/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d&service_id=1
