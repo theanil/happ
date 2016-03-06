@@ -579,24 +579,29 @@ function SetBookOption(service_id,service_name,chargeable,charges)
 	console.log(img);
 	console.log(charges);
 	
-	console.log("<li><a href=\"#\" onclick=\"SetBookID(" + service_id + ",'" + service_name + "','" + chargeable + "'," + charges + ");return false;\">" + img + " " + service_name + "<br> Rs " + charges  + "</a></li>");
+	console.log("<li><a href=\"#\" onclick=\"SetBookID(" + service_id + ",'" + service_name + "','" + chargeable + "'," + charges + ");return false;\">" + img + " <h2>" + service_name + "</h2><br> Rs " + charges  + "</a></li>");
 	
 	//$("#sum_list_afterlogin_book").append("<li><a href=\"#\" onclick=\"SetBookID(" + service_id + ",'" + service_name + "','" + chargeable + "'," + charges + ");return false;\">" + img + " " + service_name + "<br> Rs " + charges  + "</a></li>").listview("refresh");
 	
 	//$("#sum_list_afterlogin_book").append("<li><a href=\"#\" onclick=\"SetBookOption(" + service_id + ",'" + service_name + "','" + chargeable + "'," + charges + ");return false;\">" + img + " " + service_name + "<br> Rs " + charges  + "</a></li>").listview("refresh");
 	
 	//$("#sum_list_afterlogin_book").append("<li>Guest: " + plus + " 0 " + minus + " </li>").listview("refresh");		
-	$("#sum_list_afterlogin_book").append("<li>" +  img + " " + service_name + "<br> Rs " + charges + "</li>").listview("refresh");
+	
+	aa = '<div class="ui-grid-b">    <div class="ui-block-a"><div class="ui-bar ui-bar-a" >Block A</div></div>    <div class="ui-block-b"><div class="ui-bar ui-bar-a" >Block B</div></div>    <div class="ui-block-c"><div class="ui-bar ui-bar-a">Block C</div></div></div>';
+
+	//$("#sum_list_afterlogin_book").append(aa).listview("refresh");
+
+	$("#sum_list_afterlogin_book").append("<li>" +  img + " " + service_name + "<br><p >Members Rs " + charges + "<p >Guest Rs 50</p></li>").listview("refresh");
 
 	if(service_name == 'Swimming')
 	{
-		para = "Timing: " + selecttiming + "<br><br>Guest: " + select;
+		para = "Timing: " + selecttiming + "<br>Member: " + select + "<br>Guest: " + select;
 	}else if(service_name == 'Steam')
 	{
-		para = "Date: " + selectdate + "<br><br>Timing: " + selecttiming + "<br><br>Guest: " + select;
+		para = "Date: " + selectdate + "<br>Member: " + select + "<br>Guest: " + select;
 	}else
 	{
-		para = "Date: " + selectdate + "<br><br>Court: " + selectcourt + "<br><br>Timing: " + selecttiming + "<br><br>Guest: " + select;
+		para = "Date: " + selectdate + "<br>Court: " + selectcourt + "<br>Timing: " + selecttiming + "<br>Member: " + select + "<br>Guest: " + select;
 	}
 	$("#sum_list_afterlogin_book").append("<li><p>" + para + "</p>").listview("refresh");
 	
