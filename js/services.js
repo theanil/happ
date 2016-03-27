@@ -122,7 +122,7 @@ $(document).on('pageinit', '#beforelogin', function()
 					
 					//alert(serviceURL);
 					url = serviceURL + 'pre_login/1';
-					//alert(url);//return false;
+					alert(url);//return false;
 					
 					$.ajax({url: url,
 						data: {membership_id: username, device_id: device_id, device_platform: device_platform, device_browser: device_browser, ver: session_version},
@@ -350,7 +350,7 @@ function ListServices()
 	searchparam = "device_id=" + localStorage.device_uuid + "&device_platform=" +localStorage.device_platform + "&device_browser=" + localStorage.device_browser + "&session="+ localStorage.session_id_local;
 	//alert(searchparam);
 	//return false;
-	//http://localhost/h_app/services/list_services/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d
+	//http://localhost/h_app/services/list_services/1?session=HA90d272cbeaeb394e04d14b73045bb7eec92145c8
 	url = serviceURL + 'list_services/1'
 	
 	//alert(url);
@@ -378,6 +378,7 @@ function ListServices()
 		$.mobile.loading( "hide" );
 	},
 	success: function (result) {
+		//alert(result.status);
 		if(result.status == 'success') 
 		{		
 			$.mobile.loading( "hide" );	
@@ -395,7 +396,7 @@ function ListServices()
 			//alert(result[0][0].site_tender_id);
 			//alert(localStorage.session_id_local);
 			
-			$.mobile.changePage( "#search_result_afterlogin_book",null, true, true);
+			$.mobile.changePage( "#search_result_afterlogin_prebook",null, true, true);
 			$("#sum_list_afterlogin_book").html('');
 			
 				for(i=0; i<Object.keys(result.data.service).length; i++)
@@ -404,9 +405,12 @@ function ListServices()
 					service_name = result.data.service[i].service_name;
 					service_logo = result.data.service[i].service_logo;
 					s_validity = result.data.service[i].s_validity;
-					chargeable = result.data.service[i].chargeable;
+					//chargeable = result.data.service[i].chargeable;
 					charges = result.data.service[i].charges;
+					guest_charges = result.data.service[i].guest_charges;
+					
 					comments = result.data.service[i].comments;
+					chargeable = '';
 					
 					img = '<img src="' + service_logo + '" height="50">';
 					plus = '<img src="images/' + 'plus-outline.png' + '" height="24">';
@@ -422,8 +426,16 @@ function ListServices()
 					
 					//$("#sum_list_afterlogin_book").append("<li><a href=\"#\" onclick=\"SetBookID(" + service_id + ",'" + service_name + "','" + chargeable + "'," + charges + ");return false;\">" + img + " " + service_name + "<br> Rs " + charges  + "</a></li>").listview("refresh");
 					
-					$("#sum_list_afterlogin_book").append("<li><a href=\"#\" onclick=\"SetBookOption(" + service_id + ",'" + service_name + "','" + chargeable + "'," + charges + ");return false;\">" + img + " " + service_name + "<br> Rs " + charges  + "</a></li>").listview("refresh");
+					//alert();
 					
+					$("#sum_list_afterlogin_prebook").append("<li><a href=\"#\" onclick=\"SetBookOption(" + service_id + ",'" + service_name + "','" + chargeable + "','" + charges + "','" + guest_charges + "','" + service_logo + "'"+ ");return false;\">" + img + " " + service_name + "<br>Member: Rs " + charges + "<br>Guest: Rs " + guest_charges + "</a></li>").listview("refresh");
+					
+					//alert('<div class="card"><div class="card-image"><img alt="home" src="' + service_logo + '" /><h2>' + service_name + '</h2></div><h3>Member: Rs ' + charges + '<br>Guest: Rs ' + guest_charges + '</h3><p>' + urldecode(comments) + '</p>' + '<p><button onclick="alert(' +   "'anil'" +    ');">Test</button></p>' + '</div>');
+					//return false;
+					
+					$("#card1").append('<div class="card"><div class="card-image"><img alt="home" src="' + service_logo + '" /><h2>' + service_name + '</h2></div><h3>Member: Rs ' + charges + '<br>Guest: Rs ' + guest_charges + '</h3><p>' + urldecode(comments) + '</p>' + '<p>' + "<button onclick=\"SetBookOption(" + service_id + ",'" + service_name + "','" + chargeable + "','" + charges + "','" + guest_charges + "','" + service_logo + "'"+ ");return false;\">Book</button>" + '</p>' + '</div>');
+					
+					//'<p><button onclick="alert(' +   "'anil'" +    ');">Book</button></p>'
 					//$("#sum_list_afterlogin_book").append("<li>Guest: " + plus + " 0 " + minus + " </li>").listview("refresh");		
 					//$("#sum_list_afterlogin_book").append("<li>Guest: " + select + "</li>").listview("refresh");						
 					//$("#sum_list_afterlogin_book").append("<li>" +  img + " " + service_name + "<br> Rs " + charges + "</li>").listview("refresh");
@@ -444,6 +456,9 @@ function ListServices()
 	error: function (request,error) {
 		// This callback function will trigger on unsuccessful action                
 		//alert('Please check your data connection!');
+		//alert(result.status);
+		alert(error);
+		alert(request[0]);
 		$.mobile.loading( "hide" );	
 		showMessage('Please check your data connection!',null,'Error','OK');
 	}
@@ -552,7 +567,7 @@ function BookServices()
 });        
 }
 
-function SetBookOption(service_id,service_name,chargeable,charges)
+function SetBookOption(service_id,service_name,chargeable,charges, guest_charges, service_logo)
 {
 	//alert(service_id);
 	//alert(service_name);
@@ -693,15 +708,20 @@ function ListTicket(last)
 					s_validity = result.data.service[0].s_validity;
 					chargeable = result.data.service[0].chargeable;
 					//charges = result.data.service[0].charges;
-					datec = result.data.service[0].datec;
 					comments = result.data.service[0].comments;
-
+					datec = result.data.service[i].datec;
+					service_date = result.data.service[i].service_date;
+					service_slot = result.data.service[i].service_slot;
+					service_court = result.data.service[i].service_court;
+					ticket_type = result.data.service[i].ticket_type;
+					extra_info = result.data.service[i].extra_info;
+					
 					ticket_url = serviceURL + 'genqr?ticket_no=' + sticket_id;
 					//ticket_url = '';
 					img = '<img src="' + ticket_url + '" >';
 					console.log(service_name);
 					console.log(img);
-					//alert(img);
+					//alert(service_name);
 					//console.log(charges);
 					//$("#sum_list_afterlogin").append("<li><a href=\"#\" onclick=\"ShowDetail(" + result[0][i].site_tender_id + ");return false;\">" + result[0][i].site_tender_id  + " Detail</a></li>").listview("refresh");
 					
@@ -725,6 +745,11 @@ function ListTicket(last)
 					//charges = result.data.service[i].charges;
 					comments = result.data.service[i].comments;
 					datec = result.data.service[i].datec;
+					service_date = result.data.service[i].service_date;
+					service_slot = result.data.service[i].service_slot;
+					service_court = result.data.service[i].service_court;
+					ticket_type = result.data.service[i].ticket_type;
+					extra_info = result.data.service[i].extra_info;
 					
 					ticket_url = serviceURL + 'genqr?ticket_no=' + sticket_id;
 					//ticket_url = '';
@@ -734,7 +759,17 @@ function ListTicket(last)
 					//service_name,datec,s_validity
 					console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "</a></li>");
 					
-					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Booking Date: " + datec + "<br>Validity: " + s_validity + "</a></li>").listview("refresh");
+					if(extra_info == '1')
+					{
+						info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Timing: " + service_slot + "<br>Court: " + service_court + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity ;
+					}else
+					{
+						info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity ;
+					}
+					clickinfo =  "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "', '" + service_date+ "','" + service_slot+ "','" + service_court+ "','" + ticket_type + "','" + extra_info + "'";
+					//alert(clickinfo);
+					
+					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + clickinfo  + ");return false;\">" + info1 + "</a></li>").listview("refresh");
 					//$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 										
 					//console.log(result[0][i].Location);
@@ -831,16 +866,29 @@ function TransTicket()
 				//charges = result.data.service[i].charges;
 				comments = result.data.service[i].comments;
 				datec = result.data.service[i].datec;
-				
+				service_date = result.data.service[i].service_date;
+				service_slot = result.data.service[i].service_slot;
+				service_court = result.data.service[i].service_court;
+				ticket_type = result.data.service[i].ticket_type;
+				extra_info = result.data.service[i].extra_info;				
 				ticket_url = serviceURL + 'genqr?ticket_no=' + sticket_id;
 				//ticket_url = '';
 				img = '<img src="' + ticket_url + '" >';
+				if(extra_info == '1')
+				{
+					info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Timing: " + service_slot + "<br>Court: " + service_court + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity ;
+				}else
+				{
+					info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity ;
+				}
+					
+				//alert(service_name);
 				console.log(service_name);
 				console.log(img);
 				//service_name,datec,s_validity
 				console.log("<li><a href=\"#\" onclick=\"TicketID(" + "'" + ticket_no + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "'" + ");return false;\">" + service_name + "<br>Booking Date: " + datec + "<br>Validity: " + s_validity + "</a></li>");
 				
-				$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Booking Date: " + datec + "<br>Validity: " + s_validity + "</li>").listview("refresh");
+				$("#sum_list_afterlogin_list").append("<li>" + info1 + "</li>").listview("refresh");
 				//$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 									
 				//console.log(result[0][i].Location);
@@ -869,8 +917,9 @@ function TransTicket()
 });        
 }
 
-function TicketID(sticket_id, service_name,datec,s_validity )
+function TicketID(sticket_id, service_name,datec,s_validity,service_date, service_slot,service_court,ticket_type, extra_info )
 {
+	//sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "', '" + service_date+ "','" + service_slot+ "','" + service_court+ "','" + ticket_type + "','" + extra_info
 	//alert('test' + ticket_no);
 		//service_id = $("#service_id").val();
 	//charges = $("#charges").val();
@@ -889,10 +938,19 @@ function TicketID(sticket_id, service_name,datec,s_validity )
 		//alert('generating qr code');
 		//TicketID(ticket_no);
 		
+		if(extra_info == '1')
+		{
+			info2 = "Service: " + service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Timing: " + service_slot + "<br>Court: " + service_court + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity + "<br>" + img + "</center><hr><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo
+		}else
+		{
+			info2 = "Service: " + service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity + "<br>" + img + "</center><hr><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo
+		}		
+		//info2 = "Service: " + service_name + "<br> Booking Date: " + datec + "<br>Validity: " + s_validity + "<br>" + img + "</center><hr><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo;
+		
 		$.mobile.changePage( "#search_result_afterlogin_list",null, true, true);
 		$("#sum_list_afterlogin_list").html('');
 			
-		$("#sum_list_afterlogin_list").append("<li><center>Service: " + service_name + "<br> Booking Date: " + datec + "<br>Validity: " + s_validity + "<br>" + img + "</center><hr><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh")		
+		$("#sum_list_afterlogin_list").append("<li><center>" + info2 + "\"></center></li>").listview("refresh")		
 }
 
 function RechargeHistory()
@@ -1846,4 +1904,43 @@ $(document).on('pageinit', '#renewdiaglog', function()
 function ExitApp()
 {
 	navigator.app.exitApp();
+}
+
+function urldecode(str) {
+  //       discuss at: http://phpjs.org/functions/urldecode/
+  //      original by: Philip Peterson
+  //      improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  //      improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  //      improved by: Brett Zamir (http://brett-zamir.me)
+  //      improved by: Lars Fischer
+  //      improved by: Orlando
+  //      improved by: Brett Zamir (http://brett-zamir.me)
+  //      improved by: Brett Zamir (http://brett-zamir.me)
+  //         input by: AJ
+  //         input by: travc
+  //         input by: Brett Zamir (http://brett-zamir.me)
+  //         input by: Ratheous
+  //         input by: e-mike
+  //         input by: lovio
+  //      bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  //      bugfixed by: Rob
+  // reimplemented by: Brett Zamir (http://brett-zamir.me)
+  //             note: info on what encoding functions to use from: http://xkr.us/articles/javascript/encode-compare/
+  //             note: Please be aware that this function expects to decode from UTF-8 encoded strings, as found on
+  //             note: pages served as UTF-8
+  //        example 1: urldecode('Kevin+van+Zonneveld%21');
+  //        returns 1: 'Kevin van Zonneveld!'
+  //        example 2: urldecode('http%3A%2F%2Fkevin.vanzonneveld.net%2F');
+  //        returns 2: 'http://kevin.vanzonneveld.net/'
+  //        example 3: urldecode('http%3A%2F%2Fwww.google.nl%2Fsearch%3Fq%3Dphp.js%26ie%3Dutf-8%26oe%3Dutf-8%26aq%3Dt%26rls%3Dcom.ubuntu%3Aen-US%3Aunofficial%26client%3Dfirefox-a');
+  //        returns 3: 'http://www.google.nl/search?q=php.js&ie=utf-8&oe=utf-8&aq=t&rls=com.ubuntu:en-US:unofficial&client=firefox-a'
+  //        example 4: urldecode('%E5%A5%BD%3_4');
+  //        returns 4: '\u597d%3_4'
+
+  return decodeURIComponent((str + '')
+    .replace(/%(?![\da-f]{2})/gi, function() {
+      // PHP tolerates poorly formed escape sequences
+      return '%25';
+    })
+    .replace(/\+/g, '%20'));
 }
