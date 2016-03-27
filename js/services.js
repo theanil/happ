@@ -398,6 +398,7 @@ function ListServices()
 			
 			$.mobile.changePage( "#search_result_afterlogin_prebook",null, true, true);
 			$("#sum_list_afterlogin_book").html('');
+			$("#card1").html('');
 			
 				for(i=0; i<Object.keys(result.data.service).length; i++)
 				{
@@ -433,7 +434,7 @@ function ListServices()
 					//alert('<div class="card"><div class="card-image"><img alt="home" src="' + service_logo + '" /><h2>' + service_name + '</h2></div><h3>Member: Rs ' + charges + '<br>Guest: Rs ' + guest_charges + '</h3><p>' + urldecode(comments) + '</p>' + '<p><button onclick="alert(' +   "'anil'" +    ');">Test</button></p>' + '</div>');
 					//return false;
 					
-					$("#card1").append('<div class="card"><div class="card-image"><img alt="home" src="' + service_logo + '" /><h2>' + service_name + '</h2></div><h3>Member: Rs ' + charges + '<br>Guest: Rs ' + guest_charges + '</h3><p>' + urldecode(comments) + '</p>' + '<p>' + "<button onclick=\"SetBookOption(" + service_id + ",'" + service_name + "','" + chargeable + "','" + charges + "','" + guest_charges + "','" + service_logo + "'"+ ");return false;\">Book</button>" + '</p>' + '</div>');
+					$("#card1").append('<div class="card"><div class="card-image"><img alt="home" src="' + service_logo + '" /><h2>' + service_name + '</h2></div><h3>Member: Rs ' + charges + '<br>Guest: Rs ' + guest_charges + '</h3><p>' + urldecode(comments) + "<button onclick=\"SetBookOption(" + service_id + ",'" + service_name + "','" + chargeable + "','" + charges + "','" + guest_charges + "','" + service_logo + "'"+ ");return false;\">Book</button>" + '</p>' + '</div>');
 					
 					//'<p><button onclick="alert(' +   "'anil'" +    ');">Book</button></p>'
 					//$("#sum_list_afterlogin_book").append("<li>Guest: " + plus + " 0 " + minus + " </li>").listview("refresh");		
@@ -484,21 +485,32 @@ function BookServices()
 	charges = $("#charges").val();
 	chargeable = $("#chargeable").val();
 	service_name = $("#service_name").val();
-	
+	member = $("#member").val();
+	total_charge = $("#total_charge").val();
+
 	searchparam = "device_id=" + localStorage.device_uuid + "&device_platform=" +localStorage.device_platform + "&device_browser=" + localStorage.device_browser + "&session="+ localStorage.session_id_local + "&service_id="+ service_id;
 	//alert(searchparam);
 	
-	if(charges == '')
+	//else if(total_charge <= 0)
+	//{
+		//alert('Please select service before clicking on book');
+	//	showMessage('Please select number of member before clicking on book',null,'Error','OK');
+	//	return false;
+	//}
+	//alert(member);
+	//alert(total_charge);
+	if(member <= 0)
 	{
 		//alert('Please select service before clicking on book');
-		showMessage('Please select service before clicking on book',null,'Error','OK');
+		showMessage('Please select number of member before clicking on book',null,'Error','OK');
 		return false;
 	}else
 	{
 		//alert('Booking ' + service_name);
 		//showMessage('Booking ' + service_name,null,appname,'OK');
 	}
-	//return false;
+	alert("total_charge " + total_charge);
+	return false;
 	//http://localhost/h_app/services/deduct_wallet/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d&service_id=1
 
 	url = serviceURL + 'deduct_wallet/1'
@@ -567,6 +579,24 @@ function BookServices()
 });        
 }
 
+function ChangeMG()
+{
+	//alert('hi');
+	mcount = $("#mgcount1").val();
+	gcount = $("#mgcount2").val();
+	//alert(mcount);
+	//alert(gcount);
+	
+	$("#member").val(mcount);
+	$("#guest").val(gcount);
+	
+	total = ($("#charges").val() * mcount) + ($("#guest_charges").val() * gcount);
+	//alert(total);
+	$("#priceid").html('Rs ' + total);
+	
+	$("#total_charge").val(total);
+}
+
 function SetBookOption(service_id,service_name,chargeable,charges, guest_charges, service_logo)
 {
 	//alert(service_id);
@@ -581,8 +611,10 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 	plus = '<img src="images/' + 'plus-outline.png' + '" height="24">';
 	minus = '<img src="images/' + 'minus-outline.png' + '" height="24">';
 	
-	select = '<select name="dropdown"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>';
+	select = '<select name="mgcount1" id="mgcount1" onchange="ChangeMG();"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>';
 	
+	select2 = '<select name="mgcount2" id="mgcount2" onchange="ChangeMG();"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>';
+
 	selectdate = '<select name="dropdown"><option value="0" selected>Today</option><option value="2">07-Mar-2016</option><option value="8">08-Mar-2016</option></select>';
 	
 	selectcourt = '<select name="dropdown"><option value="0" selected>Court 1</option><option value="2">Court 2</option></select>';
@@ -606,17 +638,17 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 
 	//$("#sum_list_afterlogin_book").append(aa).listview("refresh");
 
-	$("#sum_list_afterlogin_book").append("<li>" +  img + " " + service_name + "<br><p >Members Rs " + charges + "<p >Guest Rs 50</p></li>").listview("refresh");
+	$("#sum_list_afterlogin_book").append("<li>" +  img + " " + service_name + "<br><p >Member: Rs " + charges + "<p >Guest: Rs " + guest_charges + "</p></li>").listview("refresh");
 
 	if(service_name == 'Swimming')
 	{
-		para = "Timing: " + selecttiming + "<br>Member: " + select + "<br>Guest: " + select;
+		para = "Member: " + select + "<br>Guest: " + select2;
 	}else if(service_name == 'Steam')
 	{
 		para = "Date: " + selectdate + "<br>Member: " + select + "<br>Guest: " + select;
 	}else
 	{
-		para = "Date: " + selectdate + "<br>Court: " + selectcourt + "<br>Timing: " + selecttiming + "<br>Member: " + select + "<br>Guest: " + select;
+		para = "Date: " + selectdate + "<br>Court: " + selectcourt + "<br>Timing: " + selecttiming + "<br>Member: " + select + "<br>Guest: " + select2;
 	}
 	$("#sum_list_afterlogin_book").append("<li><p>" + para + "</p>").listview("refresh");
 	
@@ -629,11 +661,16 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 	
 	//$("#sum_list_afterlogin_book").append("<li style='padding-top: 10px; padding-bottom: 10px'></li>").listview("refresh");
 					
-	$("#priceid").html('Rs ' + charges);
+	//$("#priceid").html('Rs ' + charges);
 	$("#service_id").val(service_id);
 	$("#service_name").val(service_name);
 	$("#chargeable").val(chargeable);
 	$("#charges").val(charges);
+	$("#guest_charges").val(guest_charges);
+	$("#member").val(0);
+	$("#guest").val(0);
+	$("#total_charge").val(0);
+	$("#priceid").html('');
 }
 
 function ListTicket(last)
