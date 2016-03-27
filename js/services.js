@@ -504,14 +504,33 @@ function BookServices()
 		//alert('Please select service before clicking on book');
 		showMessage('Please select number of member before clicking on book',null,'Error','OK');
 		return false;
-	}else
-	{
-		//alert('Booking ' + service_name);
-		//showMessage('Booking ' + service_name,null,appname,'OK');
 	}
+	//alert($("#cdown").val());
+	
+	if($("#court_id").val() == '1')
+	{
+		if($("#cdown").val() == 0)
+		{
+			//alert('Please select service before clicking on book');
+			showMessage('Please select Court',null,'Error','OK');
+			return false;
+		}
+	}
+	if($("#slot_id").val() == '1')
+	{
+		if($("#tsdown_1").val() == 0)
+		{
+			//alert('Please select service before clicking on book');
+			showMessage('Please select timing',null,'Error','OK');
+			return false;
+		}
+	}
+	
 	alert("total_charge " + total_charge);
 	return false;
 	//http://localhost/h_app/services/deduct_wallet/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d&service_id=1
+	//http://localhost/h_app/services/deduct_wallet_new/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d&service_id=1&meber=1&guest=1&dod=2016-11-11&court=1&timing=10:10
+	
 
 	url = serviceURL + 'deduct_wallet/1'
 	
@@ -597,12 +616,203 @@ function ChangeMG()
 	$("#total_charge").val(total);
 }
 
+function ChangeCourt()
+{
+	cdown = $("#cdown").val();
+	//gcount = $("#mgcount2").val();
+	//alert(cdown);
+	
+	tsdown = $("#tsdown").val();
+	//alert(tsdown);
+	var divided = cdown.split(":");
+	var name=divided[0];
+	//var street = divided[1];
+	//alert("court no " + name);
+	
+	$('#tsdown option').each(function(index,element)
+	{
+	 console.log(index);
+	 console.log(element.value);
+	 console.log(element.text);
+	 var divided2 = element.value.split(":");
+	 var name2=divided2[0];
+	 var name3=divided2[1];
+	 
+		//alert(element.text);
+	    //alert(element.value + " : " + element.text);
+		//alert(name2);
+	
+	 $('#tsdown_1').empty();
+	 $('#tsdown_1').append( new Option('Select Timing','0') );
+	 if(name == name2)
+	 {
+		 // alert("for this: " + element.value + " : " + element.text);
+		  //alert(name3);
+		  $('#tsdown_1').append( new Option(element.text,name3) );
+	 }
+	 });		
+
+	
+}
+
 function SetBookOption(service_id,service_name,chargeable,charges, guest_charges, service_logo)
 {
 	//alert(service_id);
 	//alert(service_name);
 	//alert(chargeable);
 	//alert(charges );
+	var selectcourt1 = '<select name="cdown" id="cdown" onchange="ChangeCourt();"><option value="0" selected>Select Court</option>';
+	var selectcourt2 = '';
+	var selectcourt = '';
+
+	var selectts1 = '<select name="tsdown" id="tsdown"><option value="0" selected>Select Timing</option>';
+	var selectts2 = '';
+	var selectts = '';
+	
+	var selectts1_1 = '<select name="tsdown_1" id="tsdown_1"><option value="0" selected>Select Timing</option>';
+	var selectts2_1 = '';
+	var selectts_1 = '';
+
+	var selectts1_2 = '<select name="tsdown_2" id="tsdown_2"><option value="0" selected>Select Timing</option>';
+	var selectts2_2 = '';
+	var selectts_2 = '';	
+	
+	searchparam = "device_id=" + localStorage.device_uuid + "&device_platform=" +localStorage.device_platform + "&device_browser=" + localStorage.device_browser + "&session="+ localStorage.session_id_local + "&service_id="+ service_id;
+	
+	url = serviceURL + 'service_prop/1';
+	
+	//alert(url);
+	//return false;
+	$.ajax({url: url ,
+	data: searchparam,
+	type: 'get',                   
+	async: 'true',
+	dataType: 'json',
+	beforeSend: function() {
+		// This callback function will trigger before data is sent
+		//$.mobile.showPageLoadingMsg(true); // This will show ajax spinner
+		//$.mobile.loading( "show" );
+		$.mobile.loading( 'show', {
+			text: 'Booking Service ...',
+			textVisible: true,
+			theme: 'a',
+			html: ""
+		});
+			
+	},
+	complete: function() {
+		// This callback function will trigger on data sent/received complete
+	   // $.mobile.hidePageLoadingMsg(); // This will hide ajax spinner
+		$.mobile.loading( "hide" );
+	},
+	success: function (result) {
+		if(result.status == 'success') 
+		{		
+			$.mobile.loading( "hide" );	
+			//alert(result.message);
+			//alert('ok');
+			//showMessage(result.message,null,appname,'OK');
+			//alert(result.data.balance);
+			console.log(result.message);
+			//localStorage.setItem("session_id_balance", result.data.balance);
+			//alert(Object.keys(result.data.service).length);
+			//console.log(Object.keys(result.data.service));
+			//return false;
+			//alert('ok');
+			//	selectcourt = '<select name="dropdown"><option value="0" selected>Court 1</option><option value="2">Court 2</option></select>';
+			
+			for(i=0; i<Object.keys(result.data.service).length; i++)
+			{
+				service_id = result.data.service[i].service_id;
+				//alert(service_id);
+			}
+
+			
+			//alert(selectcourt1);
+			for(i2=0; i2<Object.keys(result.data.court).length; i2++)
+			{
+				court_id = result.data.court[i2].court_id;
+				court_name = result.data.court[i2].court_name;
+				court_capacity = result.data.court[i2].court_capacity;
+				//alert(court_id);
+				//alert(court_name);
+				//alert(court_capacity);
+				selectcourt2 = selectcourt2 + '<option value="' + court_id + ':' + court_capacity + '">' + court_name + '</option>';
+				//'<option value="' + '" selected>' + court_name + '</option>'
+				//alert(selectcourt2);
+				
+			}
+			if(i2>0)
+			{
+				$("#court_id").val(1);
+			}
+			selectcourt = selectcourt1 + selectcourt2 + '</select>';
+			//alert(selectcourt2);
+			//alert(selectcourt);
+			
+			for(i3=0; i3<Object.keys(result.data.slots).length; i3++)
+			{
+				court_id3 = result.data.slots[i3].court_id;
+				timesl_id = result.data.slots[i3].timesl_id;
+				timing = result.data.slots[i3].timing;
+				//alert(court_id);
+				//alert(court_name);
+				//alert(court_capacity);
+				//selectts2 = selectts2 + '<option value="' + court_id3 + '">' + timing + '</option>';
+				selectts2 = selectts2 + '<option value="' + court_id3 + ':' + timesl_id + '">' + timing + '</option>';
+
+				//'<option value="' + '" selected>' + court_name + '</option>'
+				//alert(selectcourt2);
+				
+			}
+			if(i3>0)
+			{
+				$("#slot_id").val(1);
+			}
+			selectts = selectts1 + selectts2 + '</select>';
+			selectts1_1 = selectts1_1 + '</select>';
+			selectts1_2 = selectts1_2 + '</select>';
+			//alert(selectts);
+			//alert(selectts1_1);
+			
+			//alert('ok2');
+			var courtpar = '';
+			var timing_par = '';
+			if(i2>0) // court
+			{
+				var courtpar = "Court: " + selectcourt + "<br>";
+			}
+			if(i3>0) // slot
+			{
+				var timing_par = "Timing: " + selectts1_1 + "<br>";
+			}
+			para = selectts + courtpar + timing_par + "Member: " + select + "<br>Guest: " + select2;
+			$("#sum_list_afterlogin_book").append("<li><p>" + para + "</p>").listview("refresh");
+			$("#tsdown").hide();
+			//alert(selectcourt);
+			//alert(result.Offset);
+			//alert(result.Total);
+			//alert(newtotal);
+			//return false;
+				
+			//alert(result[0][0].site_tender_id);
+			//alert(localStorage.session_id_local);
+			
+		} else 
+		{
+			//alert(result.message);
+			$.mobile.loading( "hide" );	
+			showMessage(result.message,null,'Error','OK');
+			//alert('Logon unsuccessful!'); 
+		}
+	},
+	error: function (request,error) {
+		// This callback function will trigger on unsuccessful action                
+		//alert('Please check your data connection!');
+		$.mobile.loading( "hide" );	
+		showMessage('Please check your data connection!',null,'Error','OK');
+	}
+});       
 	
 	$.mobile.changePage( "#search_result_afterlogin_book",null, true, true);
 	$("#sum_list_afterlogin_book").html('');
@@ -617,7 +827,7 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 
 	selectdate = '<select name="dropdown"><option value="0" selected>Today</option><option value="2">07-Mar-2016</option><option value="8">08-Mar-2016</option></select>';
 	
-	selectcourt = '<select name="dropdown"><option value="0" selected>Court 1</option><option value="2">Court 2</option></select>';
+	//selectcourt = '<select name="dropdown"><option value="0" selected>Court 1</option><option value="2">Court 2</option></select>';
 
 	selecttiming = '<select name="dropdown"><option value="0" selected>10:30 to 11:10 AM</option><option value="2">11:10 to 11:50 AM</option><option value="3">11:50 to 12:30 AM</option></select>';
 	
@@ -640,17 +850,19 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 
 	$("#sum_list_afterlogin_book").append("<li>" +  img + " " + service_name + "<br><p >Member: Rs " + charges + "<p >Guest: Rs " + guest_charges + "</p></li>").listview("refresh");
 
-	if(service_name == 'Swimming')
-	{
-		para = "Member: " + select + "<br>Guest: " + select2;
-	}else if(service_name == 'Steam')
-	{
-		para = "Date: " + selectdate + "<br>Member: " + select + "<br>Guest: " + select;
-	}else
-	{
-		para = "Date: " + selectdate + "<br>Court: " + selectcourt + "<br>Timing: " + selecttiming + "<br>Member: " + select + "<br>Guest: " + select2;
-	}
-	$("#sum_list_afterlogin_book").append("<li><p>" + para + "</p>").listview("refresh");
+	//if(service_name == 'Swimming')
+	//{
+	//	para = "Member: " + select + "<br>Guest: " + select2;
+	//}else if(service_name == 'Steam')
+	//{
+	//	para = "Date: " + selectdate + "<br>Member: " + select + "<br>Guest: " + select;
+	//}else
+	//{
+	//	para = "Date: " + selectdate + "<br>Court: " + selectcourt + "<br>Timing: " + selecttiming + "<br>Member: " + select + "<br>Guest: " + select2;
+	//}
+	
+	//para =  "Member: " + select + "<br>Guest: " + select2;
+	//$("#sum_list_afterlogin_book").append("<li><p>" + para + "</p>").listview("refresh");
 	
 	//$("#sum_list_afterlogin_book").append("<li><p>Date: " + selectdate + "</p>").listview("refresh");						
 	//$("#sum_list_afterlogin_book").append("<p>Court: " + selectcourt + "</p>").listview("refresh");						
