@@ -122,7 +122,7 @@ $(document).on('pageinit', '#beforelogin', function()
 					
 					//alert(serviceURL);
 					url = serviceURL + 'pre_login/1';
-					alert(url);//return false;
+					//alert(url);//return false;
 					
 					$.ajax({url: url,
 						data: {membership_id: username, device_id: device_id, device_platform: device_platform, device_browser: device_browser, ver: session_version},
@@ -486,9 +486,15 @@ function BookServices()
 	chargeable = $("#chargeable").val();
 	service_name = $("#service_name").val();
 	member = $("#member").val();
+	guest = $("#guest").val();
 	total_charge = $("#total_charge").val();
+	court_id = $("#court_id").val();
+	slot_id = $("#slot_id").val();
+	date_book = $("#date_book").val();
 
-	searchparam = "device_id=" + localStorage.device_uuid + "&device_platform=" +localStorage.device_platform + "&device_browser=" + localStorage.device_browser + "&session="+ localStorage.session_id_local + "&service_id="+ service_id;
+	searchparam = "device_id=" + localStorage.device_uuid + "&device_platform=" +localStorage.device_platform + "&device_browser=" + localStorage.device_browser + "&session="+ localStorage.session_id_local + "&service_id="+ service_id +  "&member="+ member + "&guest="+ guest  + "&dod="+ date_book  + "&court="+ court_id + "&timing="+ slot_id;
+	
+	//&member=1&guest=1&dod=2016-11-11&court=1&timing=10:10;
 	//alert(searchparam);
 	
 	//else if(total_charge <= 0)
@@ -527,12 +533,12 @@ function BookServices()
 	}
 	
 	alert("total_charge " + total_charge);
-	return false;
+	//return false;
 	//http://localhost/h_app/services/deduct_wallet/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d&service_id=1
-	//http://localhost/h_app/services/deduct_wallet_new/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d&service_id=1&meber=1&guest=1&dod=2016-11-11&court=1&timing=10:10
+	//http://localhost/h_app/services/deduct_wallet_new/1?session=HA2762630b44f339a768eacc488029ef4d4943a83d&service_id=1&member=1&guest=1&dod=2016-11-11&court=1&timing=10:10
 	
 
-	url = serviceURL + 'deduct_wallet/1'
+	url = serviceURL + 'deduct_wallet_new/1'
 	
 	//alert(url);
 	//return false;
@@ -563,10 +569,14 @@ function BookServices()
 		{		
 			$.mobile.loading( "hide" );	
 			//alert(result.message);
+			ShowHome2();
 			showMessage(result.message,null,appname,'OK');
+			
 			//alert(result.data.balance);
 			console.log(result.message);
 			localStorage.setItem("session_id_balance", result.data.balance);
+			
+			//ListTicket(1);
 			//alert(Object.keys(result.data.service).length);
 			//console.log(Object.keys(result.data.service));
 			//return false;
@@ -576,7 +586,7 @@ function BookServices()
 			//alert(newtotal);
 			//return false;
 			
-			ListTicket(1);
+			
 	
 			//alert(result[0][0].site_tender_id);
 			//alert(localStorage.session_id_local);
@@ -661,7 +671,7 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 	//alert(service_name);
 	//alert(chargeable);
 	//alert(charges );
-	var selectcourt1 = '<select name="cdown" id="cdown" onchange="ChangeCourt();"><option value="0" selected>Select Court</option>';
+	var selectcourt1 = '<select name="cdown" id="cdown" onchange="ChangeCourt();" data-native-menu="true"><option value="0" selected>Select Court</option>';
 	var selectcourt2 = '';
 	var selectcourt = '';
 
@@ -721,13 +731,20 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 			//alert('ok');
 			//	selectcourt = '<select name="dropdown"><option value="0" selected>Court 1</option><option value="2">Court 2</option></select>';
 			
+			message = result.message;
+
 			for(i=0; i<Object.keys(result.data.service).length; i++)
 			{
 				service_id = result.data.service[i].service_id;
-				//alert(service_id);
+				booking_allowed = result.data.service[i].booking_allowed;
+				//alert(booking_allowed);
 			}
-
-			
+			if(booking_allowed == 0)
+			{
+				alert(message);
+				//showMessage(result.message,null,'Error','OK');
+				return false;
+			}
 			//alert(selectcourt1);
 			for(i2=0; i2<Object.keys(result.data.court).length; i2++)
 			{
@@ -787,7 +804,16 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 				var timing_par = "Timing: " + selectts1_1 + "<br>";
 			}
 			para = selectts + courtpar + timing_par + "Member: " + select + "<br>Guest: " + select2;
+				//$("#cdown").selectmenu('refresh', true);
+
 			$("#sum_list_afterlogin_book").append("<li><p>" + para + "</p>").listview("refresh");
+			
+			//$("#cdown").selectmenu('refresh');
+			//$("#cdown").selectmenu('refresh', true);
+			
+
+			
+			
 			$("#tsdown").hide();
 			//alert(selectcourt);
 			//alert(result.Offset);
@@ -849,6 +875,9 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 	//$("#sum_list_afterlogin_book").append(aa).listview("refresh");
 
 	$("#sum_list_afterlogin_book").append("<li>" +  img + " " + service_name + "<br><p >Member: Rs " + charges + "<p >Guest: Rs " + guest_charges + "</p></li>").listview("refresh");
+	
+	//$("#cdown").trigger("change");
+	//$("#sum_list_afterlogin_book").append("<form><div class=\"ui-field-contain\"><label for=\"select-native-1\">Basic:</label><select name=\"select-native-1\" id=\"select-native-1\"> <option value=\"4\">The 4th Option</option></select></div></form>");
 
 	//if(service_name == 'Swimming')
 	//{
