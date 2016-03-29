@@ -75,6 +75,26 @@ function ShowHome2()
 		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + mem_photo + "\"></center></li>").listview("refresh");
 		$("#welcome_message").append("<li>Balance: Rs " + balance + "</li>").listview("refresh");
 		
+		$("#id_mem_photo").empty();
+		$("#id_mem_photo").append("<img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\">").trigger('create');		
+		$("#id_name").empty();
+		$("#id_name").append(localStorage.session_name).trigger('create');
+		$("#id_name2").empty();
+		$("#id_name2").append(localStorage.session_owner_names).trigger('create');
+		
+		$("#id_add1").empty();
+		$("#id_add1").append(localStorage.session_add1).trigger('create');
+		$("#id_add2").empty();
+		$("#id_add2").append(localStorage.session_add2).trigger('create');
+		$("#id_city").empty();
+		$("#id_city").append(localStorage.session_city + " " + localStorage.session_pin).trigger('create');
+		$("#id_mobileno").empty();
+		$("#id_mobileno").append(localStorage.session_mobileno).trigger('create');
+		$("#id_emergency_contact_no").empty();
+		$("#id_emergency_contact_no").append(localStorage.session_emergency_contact_no).trigger('create');
+		$("#id_membership_id").empty();
+		$("#id_membership_id").append(localStorage.session_membership_id).trigger('create');
+		
 		//$("#welcome_message").append("<li>Validity: " + dt2 + "</li>").listview("refresh");
 		//$("#welcome_message").append('').listview("refresh");
 	}
@@ -283,12 +303,20 @@ $(document).on('pageinit', '#login', function()
 								//return false;
 								localStorage.setItem("session_id_username", username);
 								localStorage.setItem("session_id_local", session_id);
-								localStorage.setItem("session_name", result.data.name);
+								localStorage.setItem("session_name", urldecode(result.data.name));
 								localStorage.setItem("session_mobileno", result.data.mobileno);
 								localStorage.setItem("session_validity", result.data.mem_validity);
-								localStorage.setItem("session_id_email_id", result.data.email);
+								localStorage.setItem("session_id_email_id", urldecode(result.data.email));
 								localStorage.setItem("session_id_balance", result.data.balance);
-								localStorage.setItem("session_id_mem_photo", result.data.mem_photo);
+								localStorage.setItem("session_id_mem_photo", urldecode(result.data.mem_photo));
+								localStorage.setItem("session_type_of_record", result.data.type_of_record);
+								localStorage.setItem("session_membership_id", result.data.membership_id);
+								localStorage.setItem("session_add1", urldecode(result.data.add1));
+								localStorage.setItem("session_add2", urldecode(result.data.add2));
+								localStorage.setItem("session_city", urldecode(result.data.city));
+								localStorage.setItem("session_pin", urldecode(result.data.pin));
+								localStorage.setItem("session_owner_names", urldecode(result.data.owner_names));
+								localStorage.setItem("session_emergency_contact_no", result.data.emergency_contact_no);
 								
 								//alert(result.email_id);
 								//$.mobile.changePage("#second");                         
@@ -302,6 +330,26 @@ $(document).on('pageinit', '#login', function()
 	
 								$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + result.data.mem_photo + "\"></center></li>").listview("refresh");	
 								$("#welcome_message").append("<li>Balance: Rs " + result.data.balance + "</li>").listview("refresh");
+								
+								$("#id_mem_photo").empty();
+								$("#id_mem_photo").append("<img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\">").trigger('create');		
+								$("#id_name").empty();
+								$("#id_name").append(localStorage.session_name).trigger('create');
+								$("#id_name2").empty();
+								$("#id_name2").append(localStorage.session_owner_names).trigger('create');
+								
+								$("#id_add1").empty();
+								$("#id_add1").append(localStorage.session_add1).trigger('create');
+								$("#id_add2").empty();
+								$("#id_add2").append(localStorage.session_add2).trigger('create');
+								$("#id_city").empty();
+								$("#id_city").append(localStorage.session_city + " " + localStorage.session_pin).trigger('create');
+								$("#id_mobileno").empty();
+								$("#id_mobileno").append(localStorage.session_mobileno).trigger('create');
+								$("#id_emergency_contact_no").empty();
+								$("#id_emergency_contact_no").append(localStorage.session_emergency_contact_no).trigger('create');
+								$("#id_membership_id").empty();
+								$("#id_membership_id").append(localStorage.session_membership_id).trigger('create');								
 								
 								if(diff2>0 && diff2<=30)
 								{
@@ -569,7 +617,8 @@ function BookServices()
 		{		
 			$.mobile.loading( "hide" );	
 			//alert(result.message);
-			ShowHome2();
+			//ShowHome2();
+			ListTicket(0);
 			showMessage(result.message,null,appname,'OK');
 			
 			//alert(result.data.balance);

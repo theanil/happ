@@ -164,7 +164,33 @@
 
 		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh");
 		$("#welcome_message").append("<li>" + 'Balance: Rs ' + localStorage.session_id_balance + "</li>").listview("refresh");		
-
+		
+		//$("#session_name_id").val('aa');
+		//$("#session_name_id").refresh();
+		
+		//alert("<img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\">");
+		$("#id_mem_photo").empty();
+		$("#id_mem_photo").append("<img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\">").trigger('create');		
+		$("#id_name").empty();
+		$("#id_name").append(localStorage.session_name).trigger('create');
+		$("#id_name2").empty();
+		$("#id_name2").append(localStorage.session_owner_names).trigger('create');
+		
+		$("#id_add1").empty();
+		$("#id_add1").append(localStorage.session_add1).trigger('create');
+		$("#id_add2").empty();
+		$("#id_add2").append(localStorage.session_add2).trigger('create');
+		$("#id_city").empty();
+		$("#id_city").append(localStorage.session_city + " " + localStorage.session_pin).trigger('create');
+		$("#id_mobileno").empty();
+		$("#id_mobileno").append(localStorage.session_mobileno).trigger('create');
+		$("#id_emergency_contact_no").empty();
+		$("#id_emergency_contact_no").append(localStorage.session_emergency_contact_no).trigger('create');
+		$("#id_membership_id").empty();
+		$("#id_membership_id").append(localStorage.session_membership_id).trigger('create');
+		//$("#id_name").empty();
+		//$("#id_name").append(localStorage.session_name).trigger('create');		
+		//alert('aa');
 	});
 	</script>	
 	
@@ -194,8 +220,29 @@
     	<!--<h4>Welcome</h4>-->
 		
 		<!--<img src="tenderlogo.png">-->
-		<ul data-role="listview" data-inset="true" id="welcome_message"></ul>		
+		<ul data-role="listview" data-inset="true" id="welcome_message1"></ul>		
 		<p>
+		
+		<div class="card">
+			<div class="card-image">
+				
+				<!--<h2><span id="session_name_id"></span></h2>-->
+				
+				<span id="id_mem_photo"></span>
+				
+			</div>
+
+			<h5><span id="id_name"></span></h5>
+			<span id="id_name2"></span><br>
+			<span id="id_add1"></span><br>
+			<span id="id_add2"></span>
+			<span id="id_city"></span>
+			<span id="id_pin"></span><br>
+			Contact: <span id="id_mobileno"></span><br>
+			Emergency: <span id="id_emergency_contact_no"></span><br>
+			<center><h1><span id="id_membership_id"></span><h1></center>
+		</div>		
+
 		<div data-role="listview" data-inset="true" >
 
 			<ul data-role="listview" data-inset="true" >
