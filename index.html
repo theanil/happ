@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="css/jqm-demos.css" />
 <link rel="stylesheet" href="css/styles.css" />
 <link rel="stylesheet" href="css/card-css.css" />
+<link rel="stylesheet" type="text/css" href="css/file.css">
 
 <script type="text/javascript" charset="utf-8">
  
@@ -222,11 +223,10 @@
 		<!--<img src="tenderlogo.png">-->
 		<ul data-role="listview" data-inset="true" id="welcome_message1"></ul>		
 		<p>
-		
+		<!--
 		<div class="card">
 			<div class="card-image">
 				
-				<!--<h2><span id="session_name_id"></span></h2>-->
 				
 				<span id="id_mem_photo"></span>
 				
@@ -242,7 +242,52 @@
 			Emergency: <span id="id_emergency_contact_no"></span><br>
 			<center><h1><span id="id_membership_id"></span><h1></center>
 		</div>		
+-->
+		
+<div class="card">
 
+			<h2 style="text-align:center;"><b>Hiranandani Meadows,Thane</b></h2>
+	<div class="upper_part" >
+		
+		<div class="half_part" >
+		<span id="id_mem_photo">
+		</div>
+		<div class="half_part" >
+		<img src="img/examples/newlogo.png" style="margin-top:15px;width:100px;margin-left: 53px;">
+		
+		</div>
+		</div>
+		<div>
+	<p style=" margin-top: 154px;padding-left: 11px;"><b><span id="id_name"></span></b><br>
+	 <span id="id_name2"></span> <br>
+	  <span id="id_add1"></span> <span id="id_add2"></span> <span id="id_city"></span> <span id="id_pin"></span> <br>
+	  Contact : <span id="id_mobileno"></span></span><br>
+	  Emergency : <span id="id_emergency_contact_no"></span><br></p>
+  <p style="padding-left:27px;font-size:30px;"><strong><span id="id_membership_id"></span><h1></strong></p>
+  
+  </p> 
+  </div>
+  
+</div>  
+
+<div class="card">  
+  <div>
+  <div class="half1_part" ><a href="#" onclick="ListServices(); return false;"><img src="img/examples/download (1).jpg" style="border: 0px solid yellow;display: block;width: 100%;margin-left:0px;"></a>
+	</div>
+	
+	<div class="half1_part" ><a href="#" onclick="ListTicket(0); return false;"><img src="img/examples/images (3).png" style="border: 0px solid yellow;display: block;width: 100%;margin-left:0px;"></a>
+	</div>
+	
+	<div class="half1_part"><a href="#" onclick="TransTicket(0); return false;"><img src="img/examples/images (3).png" style="border: 0px solid yellow;display: block;width: 100%;margin-left:0px;"></a>
+	</div>
+	
+	<div class="half1_part" ><a href="#" onclick="RechargeHistory(0); return false;"><img src="img/examples/images (5).png" style="border: 0px solid yellow;display: block;width: 100%;margin-left:0px;"></a>
+	</div>
+	</div>
+	<div>&nbsp;</div>
+	</div>		
+		
+		<!--
 		<div data-role="listview" data-inset="true" >
 
 			<ul data-role="listview" data-inset="true" >
@@ -250,7 +295,7 @@
 				  <li><a href="#" onclick="ListTicket(0); return false;">Show My Ticket</a></li>
 				  <li><a href="#" onclick="TransTicket(0); return false;">Transaction History</a></li>
 				  <li><a href="#" onclick="RechargeHistory(0); return false;">Recharge History</a></li>
-				  
+			-->	  
 				  <!--
 				  <li><a href="#" onclick="Recharge(); return false;">Recharge</a></li>
 				  -->
@@ -258,9 +303,10 @@
 				  <!--
 				  <li><a href="#" onclick="GetAggData('tenders','byproduct'); return false;">Tenders by Product</a></li>
 				  -->
-				</ul>
+		<!--
+		</ul>
 		</div>
-	
+	-->
 		
 		<ul data-role="listview" data-inset="true" id="app-status-ul"></ul>
 		
