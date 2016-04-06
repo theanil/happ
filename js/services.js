@@ -76,7 +76,7 @@ function ShowHome2()
 		$("#welcome_message").append("<li>Balance: Rs " + balance + "</li>").listview("refresh");
 		
 		$("#id_mem_photo").empty();
-		$("#id_mem_photo").append("<img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\">").trigger('create');		
+		$("#id_mem_photo").append("<img height=\"70\" src=\"" + localStorage.session_id_mem_photo + "\">").trigger('create');		
 		$("#id_name").empty();
 		$("#id_name").append(localStorage.session_name).trigger('create');
 		$("#id_name2").empty();
@@ -332,7 +332,7 @@ $(document).on('pageinit', '#login', function()
 								$("#welcome_message").append("<li>Balance: Rs " + result.data.balance + "</li>").listview("refresh");
 								
 								$("#id_mem_photo").empty();
-								$("#id_mem_photo").append("<img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\">").trigger('create');		
+								$("#id_mem_photo").append("<img height=\"70\" src=\"" + localStorage.session_id_mem_photo + "\">").trigger('create');		
 								$("#id_name").empty();
 								$("#id_name").append(localStorage.session_name).trigger('create');
 								$("#id_name2").empty();
@@ -451,6 +451,7 @@ function ListServices()
 				for(i=0; i<Object.keys(result.data.service).length; i++)
 				{
 					service_id = result.data.service[i].service_id;
+					scc_id = result.data.service[i].scc_id;
 					service_name = result.data.service[i].service_name;
 					service_logo = result.data.service[i].service_logo;
 					s_validity = result.data.service[i].s_validity;
@@ -479,10 +480,10 @@ function ListServices()
 					
 					$("#sum_list_afterlogin_prebook").append("<li><a href=\"#\" onclick=\"SetBookOption(" + service_id + ",'" + service_name + "','" + chargeable + "','" + charges + "','" + guest_charges + "','" + service_logo + "'"+ ");return false;\">" + img + " " + service_name + "<br>Member: Rs " + charges + "<br>Guest: Rs " + guest_charges + "</a></li>").listview("refresh");
 					
-					//alert('<div class="card"><div class="card-image"><img alt="home" src="' + service_logo + '" /><h2>' + service_name + '</h2></div><h3>Member: Rs ' + charges + '<br>Guest: Rs ' + guest_charges + '</h3><p>' + urldecode(comments) + '</p>' + '<p><button onclick="alert(' +   "'anil'" +    ');">Test</button></p>' + '</div>');
+					//alert('<div class="card"><div class="card-image"><img alt="home" src="' + service_logo + '" /><h2>' + service_name + '</h2></div><h3>Member: Rs ' + charges + '<br>Guest: Rs ' + guest_charges + '</h3><p>' + urldecode(comments) + "<button onclick=\"SetBookOption(" + service_id + "," + scc_id + ",'" + service_name + "','" + chargeable + "','" + charges + "','" + guest_charges + "','" + service_logo + "'"+ ");return false;\">Book</button>" + '</p>' + '</div>');
 					//return false;
 					
-					$("#card1").append('<div class="card"><div class="card-image"><img alt="home" src="' + service_logo + '" /><h2>' + service_name + '</h2></div><h3>Member: Rs ' + charges + '<br>Guest: Rs ' + guest_charges + '</h3><p>' + urldecode(comments) + "<button onclick=\"SetBookOption(" + service_id + ",'" + service_name + "','" + chargeable + "','" + charges + "','" + guest_charges + "','" + service_logo + "'"+ ");return false;\">Book</button>" + '</p>' + '</div>');
+					$("#card1").append('<div class="card"><div class="card-image"><img alt="home" src="' + service_logo + '" /><h2>' + service_name + '</h2></div><h3>Member: Rs ' + charges + '<br>Guest: Rs ' + guest_charges + '</h3><p>' + urldecode(comments) + "<button onclick=\"SetBookOption(" + service_id + "," + scc_id + ",'" + service_name + "','" + chargeable + "','" + charges + "','" + guest_charges + "','" + service_logo + "'"+ ");return false;\">Book</button>" + '</p>' + '</div>');
 					
 					//'<p><button onclick="alert(' +   "'anil'" +    ');">Book</button></p>'
 					//$("#sum_list_afterlogin_book").append("<li>Guest: " + plus + " 0 " + minus + " </li>").listview("refresh");		
@@ -544,6 +545,7 @@ function BookServices()
 	
 	//&member=1&guest=1&dod=2016-11-11&court=1&timing=10:10;
 	//alert(searchparam);
+	//return false;
 	
 	//else if(total_charge <= 0)
 	//{
@@ -688,33 +690,39 @@ function ChangeCourt()
 	//var street = divided[1];
 	//alert("court no " + name);
 	
+	$('#court_id').val(name);
+		 $('#tsdown_1').empty();
+		 $('#tsdown_1').append( new Option('Select Timing','0') );
+			
 	$('#tsdown option').each(function(index,element)
 	{
 	 console.log(index);
 	 console.log(element.value);
 	 console.log(element.text);
+	
 	 var divided2 = element.value.split(":");
-	 var name2=divided2[0];
-	 var name3=divided2[1];
+	 var name2 = divided2[0];
+	 var name3 = divided2[1];
 	 
 		//alert(element.text);
 	    //alert(element.value + " : " + element.text);
-		//alert(name2);
-	
-	 $('#tsdown_1').empty();
-	 $('#tsdown_1').append( new Option('Select Timing','0') );
-	 if(name == name2)
-	 {
-		 // alert("for this: " + element.value + " : " + element.text);
-		  //alert(name3);
-		  $('#tsdown_1').append( new Option(element.text,name3) );
-	 }
-	 });		
-
-	
+		//alert(name2 + " * " + name3 + " * " + element.text);
+		if(name == name2)
+		{
+		 $('#tsdown_1').append( new Option(element.text,name3) );
+		}
+	 });	
 }
 
-function SetBookOption(service_id,service_name,chargeable,charges, guest_charges, service_logo)
+function ChangeTiming()
+{
+	tsdown_1 = $("#tsdown_1").val();
+	//gcount = $("#mgcount2").val();
+	//alert(tsdown_1);
+	$('#slot_id').val(tsdown_1);
+}
+
+function SetBookOption(service_id,scc_id, service_name,chargeable,charges, guest_charges, service_logo)
 {
 	//alert(service_id);
 	//alert(service_name);
@@ -728,7 +736,7 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 	var selectts2 = '';
 	var selectts = '';
 	
-	var selectts1_1 = '<select name="tsdown_1" id="tsdown_1"><option value="0" selected>Select Timing</option>';
+	var selectts1_1 = '<select name="tsdown_1" id="tsdown_1" onchange="ChangeTiming();"><option value="0" selected>Select Timing</option>';
 	var selectts2_1 = '';
 	var selectts_1 = '';
 
@@ -736,7 +744,7 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 	var selectts2_2 = '';
 	var selectts_2 = '';	
 	
-	searchparam = "device_id=" + localStorage.device_uuid + "&device_platform=" +localStorage.device_platform + "&device_browser=" + localStorage.device_browser + "&session="+ localStorage.session_id_local + "&service_id="+ service_id;
+	searchparam = "device_id=" + localStorage.device_uuid + "&device_platform=" +localStorage.device_platform + "&device_browser=" + localStorage.device_browser + "&session="+ localStorage.session_id_local + "&service_id="+ service_id + "&scc_id="+ scc_id;
 	
 	url = serviceURL + 'service_prop/1';
 	
@@ -826,7 +834,8 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 				//alert(court_capacity);
 				//selectts2 = selectts2 + '<option value="' + court_id3 + '">' + timing + '</option>';
 				selectts2 = selectts2 + '<option value="' + court_id3 + ':' + timesl_id + '">' + timing + '</option>';
-
+				
+				//alert('<option value="' + court_id3 + ':' + timesl_id + '">');
 				//'<option value="' + '" selected>' + court_name + '</option>'
 				//alert(selectcourt2);
 				
@@ -851,6 +860,10 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 			if(i3>0) // slot
 			{
 				var timing_par = "Timing: " + selectts1_1 + "<br>";
+				if(i2 == 0)
+				{
+					var timing_par = "Timing: " + selectts + "<br>";
+				}
 			}
 			para = selectts + courtpar + timing_par + "Member: " + select + "<br>Guest: " + select2;
 				//$("#cdown").selectmenu('refresh', true);
@@ -859,9 +872,6 @@ function SetBookOption(service_id,service_name,chargeable,charges, guest_charges
 			
 			//$("#cdown").selectmenu('refresh');
 			//$("#cdown").selectmenu('refresh', true);
-			
-
-			
 			
 			$("#tsdown").hide();
 			//alert(selectcourt);
@@ -1040,6 +1050,8 @@ function ListTicket(last)
 					service_date = result.data.service[i].service_date;
 					service_slot = result.data.service[i].service_slot;
 					service_court = result.data.service[i].service_court;
+					timing = result.data.service[i].timing;
+					court_name = result.data.service[i].court_name;
 					ticket_type = result.data.service[i].ticket_type;
 					extra_info = result.data.service[i].extra_info;
 					
@@ -1054,9 +1066,10 @@ function ListTicket(last)
 					
 					//alert('generating qr code');
 					//TicketID(ticket_no);
+					// "<br>Validity: " + s_validity +
 					
-					$("#sum_list_afterlogin_list").append("<li><center>Service: " +  service_name + "<br>Booking Date: " + datec + "<br>Validity: " + s_validity + "<br><br>" + img + "</center></li>").listview("refresh");
-					$("#sum_list_afterlogin_list").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh");					
+					$("#sum_list_afterlogin_list").append("<li><center>Service: " +  service_name + "<br>Booking Date: " + datec + "<br><br>" + img + "</center></li>").listview("refresh");
+					$("#sum_list_afterlogin_list").append("<li><center><img height=\"70\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh");					
 			}
 			else
 			{
@@ -1074,6 +1087,8 @@ function ListTicket(last)
 					datec = result.data.service[i].datec;
 					service_date = result.data.service[i].service_date;
 					service_slot = result.data.service[i].service_slot;
+					timing = result.data.service[i].timing;
+					court_name = result.data.service[i].court_name;
 					service_court = result.data.service[i].service_court;
 					ticket_type = result.data.service[i].ticket_type;
 					extra_info = result.data.service[i].extra_info;
@@ -1088,14 +1103,17 @@ function ListTicket(last)
 					
 					if(extra_info == '1')
 					{
-						info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Timing: " + service_slot + "<br>Court: " + service_court + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity ;
+						info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Timing: " + timing + "<br>Court: " + court_name + "<br>Ticket Type: " + ticket_type ;
+						// + "<br>Validity: " + s_validity
 					}else
 					{
-						info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity ;
+						info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Ticket Type: " + ticket_type ;
+						// + "<br>Validity: " + s_validity
 					}
-					clickinfo =  "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "', '" + service_date+ "','" + service_slot+ "','" + service_court+ "','" + ticket_type + "','" + extra_info + "'";
+					clickinfo =  "'" + sticket_id + "'," + "'" + service_name + "'," + "'" + datec + "'," + "'" + s_validity + "', '" + service_date+ "','" + timing+ "','" + court_name+ "','" + ticket_type + "','" + extra_info + "'";
 					//alert(clickinfo);
 					
+					//alert(info1);
 					$("#sum_list_afterlogin_list").append("<li><a href=\"#\" onclick=\"TicketID(" + clickinfo  + ");return false;\">" + info1 + "</a></li>").listview("refresh");
 					//$("#sum_list_afterlogin_list").append("<li>" + service_name + "<br>Date of Booking: " + datec + "<br>Validity: " + s_validity + "<br>" + "</li>").listview("refresh");
 										
@@ -1195,18 +1213,22 @@ function TransTicket()
 				datec = result.data.service[i].datec;
 				service_date = result.data.service[i].service_date;
 				service_slot = result.data.service[i].service_slot;
+				timing = result.data.service[i].timing;
+				court_name = result.data.service[i].court_name;
 				service_court = result.data.service[i].service_court;
 				ticket_type = result.data.service[i].ticket_type;
 				extra_info = result.data.service[i].extra_info;				
 				ticket_url = serviceURL + 'genqr?ticket_no=' + sticket_id;
 				//ticket_url = '';
 				img = '<img src="' + ticket_url + '" >';
+				
+				// + "<br>Validity: " + s_validity
 				if(extra_info == '1')
 				{
-					info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Timing: " + service_slot + "<br>Court: " + service_court + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity ;
+					info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Timing: " + timing + "<br>Court: " + court_name + "<br>Ticket Type: " + ticket_type ;
 				}else
 				{
-					info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity ;
+					info1 = service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Ticket Type: " + ticket_type ;
 				}
 					
 				//alert(service_name);
@@ -1264,13 +1286,13 @@ function TicketID(sticket_id, service_name,datec,s_validity,service_date, servic
 		
 		//alert('generating qr code');
 		//TicketID(ticket_no);
-		
+		//"<br>Validity: " + s_validity +
 		if(extra_info == '1')
 		{
-			info2 = "Service: " + service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Timing: " + service_slot + "<br>Court: " + service_court + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity + "<br>" + img + "</center><hr><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo
+			info2 = "Service: " + service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Timing: " + service_slot + "<br>Court: " + service_court + "<br>Ticket Type: " + ticket_type +  "<br>" + img + "</center><hr><center><img height=\"70\" src=\"" + localStorage.session_id_mem_photo
 		}else
 		{
-			info2 = "Service: " + service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Ticket Type: " + ticket_type + "<br>Validity: " + s_validity + "<br>" + img + "</center><hr><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo
+			info2 = "Service: " + service_name + "<br>Booking Date: " + datec + "<br>Service Date: " + service_date + "<br>Ticket Type: " + ticket_type + "<br>" + img + "</center><hr><center><img height=\"70\" src=\"" + localStorage.session_id_mem_photo
 		}		
 		//info2 = "Service: " + service_name + "<br> Booking Date: " + datec + "<br>Validity: " + s_validity + "<br>" + img + "</center><hr><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo;
 		

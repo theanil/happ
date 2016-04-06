@@ -163,7 +163,7 @@
 		$("#welcome_message").append("<li>" + 'Welcome ' + localStorage.session_name + "</li>").listview("refresh");
 		//$("#welcome_message").append("<li>" + 'Validity: ' + dt2 + "</li>").listview("refresh");
 
-		$("#welcome_message").append("<li><center><img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh");
+		$("#welcome_message").append("<li><center><img height=\"70\" src=\"" + localStorage.session_id_mem_photo + "\"></center></li>").listview("refresh");
 		$("#welcome_message").append("<li>" + 'Balance: Rs ' + localStorage.session_id_balance + "</li>").listview("refresh");		
 		
 		//$("#session_name_id").val('aa');
@@ -171,7 +171,7 @@
 		
 		//alert("<img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\">");
 		$("#id_mem_photo").empty();
-		$("#id_mem_photo").append("<img height=\"100\" src=\"" + localStorage.session_id_mem_photo + "\">").trigger('create');		
+		$("#id_mem_photo").append("<img height=\"70\" src=\"" + localStorage.session_id_mem_photo + "\">").trigger('create');		
 		$("#id_name").empty();
 		$("#id_name").append(localStorage.session_name).trigger('create');
 		$("#id_name2").empty();
@@ -246,14 +246,14 @@
 		
 <div class="card">
 
-	<h2 style="text-align:center;"><b>Hiranandani Meadows,Thane</b></h2>
+	<h2 style="text-align:center;"><b><!--Hiranandani Meadows,Thane--></b></h2>
 	<div class="upper_part" >
 		
 		<div class="half_part" >
-		<span id="id_mem_photo">
+		<!--<span id="id_mem_photo">-->
 		</div>
 		<div class="half_part" >
-		<img src="img/examples/newlogo.png" style="margin-top:15px;width:100px;margin-left: 53px;">
+		<!--<img src="img/examples/newlogo.png" style="margin-top:15px;width:70px;margin-left: 53px;">-->
 		
 		</div>
 	</div>
@@ -893,6 +893,8 @@
 			<input type="button" data-theme="b" name="submit" id="submit_login" value="Submit">
 
 		</form>
+		
+			<a href="# member.html" class="ui-btn" data-theme="b">Join Now</a>
 		
 	</div><!-- /content -->
 </div>	
@@ -2850,6 +2852,8 @@ to Tendersinfo.com and you accept To Comply With The
 				<input type="hidden" name="court_id" id="court_id" value="0">		
 				<input type="hidden" name="slot_id" id="slot_id" value="0">		
 				<input type="hidden" name="date_book" id="date_book" value="0">		
+				<input type="hidden" name="tax_code" id="tax_code" value="0">		
+				<input type="hidden" name="tax_rate" id="tax_rate" value="0">		
 				
 				</li>
 
